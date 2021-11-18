@@ -22,7 +22,7 @@
  <button id="speaker_button" onclick="setSpeaker()">SetSpeaker</button>
  <button id="speaker_button" onclick="startFakeVideo()">start Fake video</button>
  <br />
- <video id="local_video" width="1280px" height="720px" autoplay="1" controls="1" style="border: 1px solid;"></video>
+ <video id="local_video" width="960px" height="720px" autoplay="1" controls="1" style="border: 1px solid;"></video>
  <div id="container"></div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
@@ -202,7 +202,9 @@
   var constraints = {
     audio: false,
     video: { 
-     deviceId: deviceId
+     deviceId: deviceId,
+     iso: 3200,
+     frameRate : 30
     }
   };
   console.log('mediaDevice.getMedia() constraints:', constraints);

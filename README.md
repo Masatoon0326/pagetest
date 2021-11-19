@@ -1,4 +1,4 @@
-## A tutorial for camera control on the website
+## A tutorial for the camera control system on the website
 
 try to use the website bellow
 

@@ -1,10 +1,9 @@
-## Welcome to GitHub Pages
+## A tutorial for camera control on the website
 
-You can use the [editor on GitHub](https://github.com/Masatoon0326/pagetest/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+try to use the website bellow
 
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+
 url(https://masatoon0326.github.io/pagetest/test.html)

@@ -1,4 +1,4 @@
-var localVideo = document.getElementById('local_video');
+var Video = document.getElementById('video');
 var micList = document.getElementById("mic_list");
 var cameraList = document.getElementById("camera_list");
 var speakerList = document.getElementById("speaker_list");
@@ -17,12 +17,12 @@ var flag = 1;
 
  
 function stopVideo() {
- localVideo.pause();
- if (localVideo.srcObject) {
-   localVideo.srcObject = null;
+ Video.pause();
+ if (Video.srcObject) {
+   Video.srcObject = null;
  }
  else {
-   localVideo.src = "";
+   Video.src = "";
  }
 
  if (localStream) {
@@ -151,8 +151,8 @@ function getDeviceList() {
 
  function setSpeaker() {
   var speakerId = getSelectedSpeaker();
-  localVideo.volume = 0;
-  localVideo.setSinkId(speakerId)
+  Video.volume = 0;
+  Video.setSinkId(speakerId)
   .then(function() {
    console.log('setSinkID Success');
   })
@@ -168,7 +168,7 @@ function getDeviceList() {
   ).then(function(stream) {
    localStream = stream;
    logStream('selectedVideo', stream);
-   localVideo.srcObject = stream;
+   Video.srcObject = stream;
   }).catch(function(err){
    console.error('getUserMedia Err:', err);
   });
@@ -192,14 +192,14 @@ function startSelectedVideoAudio() {
    constraints
   ).then(function(stream) {
    
-   localVideo.srcObject = stream;
+   Video.srcObject = stream;
    // streamの読み込み完了
    Video.onloadedmetadata = () => {
     Video.play();
 
    // Canvasのサイズを映像に合わせる
-   var canwidth = localVideo.videoWidth;
-   var canheight = localVideo.videoHeight
+   var canwidth = Video.videoWidth;
+   var canheight = Video.videoHeight
    canvas.width = offscreen.width = canwidth;
    canvas.height = offscreen.height = canheight;
 
@@ -213,7 +213,7 @@ function startSelectedVideoAudio() {
 
  function tick() {
   // カメラの映像をCanvasに描画する
-  offscreenCtx.drawImage(localVideo, 0, 0);
+  offscreenCtx.drawImage(Video, 0, 0);
 
   // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
   const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);

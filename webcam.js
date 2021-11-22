@@ -1,5 +1,4 @@
 var localVideo = document.getElementById('local_video');
-var videoContainer = document.getElementById('container');
 var micList = document.getElementById("mic_list");
 var cameraList = document.getElementById("camera_list");
 var speakerList = document.getElementById("speaker_list");
@@ -222,12 +221,13 @@ function startSelectedVideoAudio() {
   if (flag == 1){
     var preimageData = imageData;
     var processedimageData = imageData;
+    flag += 2;
   }
   // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
-  filter(processedimageData.data, nowimageData.data, preimageData.data);
+  //filter(processedimageData.data, nowimageData.data, preimageData.data);
 
   // オフスクリーンCanvasを更新する
-  offscreenCtx.putImageData(processedimageData, 0, 0);
+  offscreenCtx.putImageData(nowdata, 0, 0);
 
   // 表示用Canvasに描画する
   ctx.drawImage(offscreen, 0, 0);

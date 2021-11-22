@@ -1,4 +1,4 @@
-var Video = document.getElementById('video');
+var video = document.getElementById('video');
 var micList = document.getElementById("mic_list");
 var cameraList = document.getElementById("camera_list");
 var speakerList = document.getElementById("speaker_list");
@@ -19,12 +19,12 @@ var flag = 1;
 
  
 function stopVideo() {
- Video.pause();
- if (Video.srcObject) {
-   Video.srcObject = null;
+ video.pause();
+ if (video.srcObject) {
+   video.srcObject = null;
  }
  else {
-   Video.src = "";
+   video.src = "";
  }
 
  if (localStream) {
@@ -153,8 +153,8 @@ function getDeviceList() {
 
  function setSpeaker() {
   var speakerId = getSelectedSpeaker();
-  Video.volume = 0;
-  Video.setSinkId(speakerId)
+  video.volume = 0;
+  video.setSinkId(speakerId)
   .then(function() {
    console.log('setSinkID Success');
   })
@@ -170,7 +170,7 @@ function getDeviceList() {
   ).then(function(stream) {
    localStream = stream;
    logStream('selectedVideo', stream);
-   Video.srcObject = stream;
+   video.srcObject = stream;
   }).catch(function(err){
    console.error('getUserMedia Err:', err);
   });
@@ -194,14 +194,14 @@ function startSelectedVideoAudio() {
    constraints
   ).then(function(stream) {
    
-   Video.srcObject = stream;
+   video.srcObject = stream;
    // streamの読み込み完了
-   Video.onloadedmetadata = () => {
-    Video.play();
+   video.onloadedmetadata = () => {
+    video.play();
 
    // Canvasのサイズを映像に合わせる
-   var canwidth = Video.videoWidth;
-   var canheight = Video.videoHeight
+   var canwidth = video.videoWidth;
+   var canheight = video.videoHeight
    canvas.width = offscreen.width = canwidth;
    canvas.height = offscreen.height = canheight;
 

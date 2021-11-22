@@ -14,7 +14,7 @@ async function main() {
 
   localvideo.srcObject = stream;
   // streamの読み込み完了
-  video.onloadedmetadata = () => {
+  localvideo.onloadedmetadata = () => {
     video.play();
 
     // Canvasのサイズを映像に合わせる

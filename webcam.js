@@ -6,20 +6,20 @@ async function main() {
   const offscreen = document.createElement("canvas");
   const offscreenCtx = offscreen.getContext("2d");
   // カメラから映像を取得するためのvideo要素
-  const video = document.createElement("video");
+  const localvideo = document.createElement("video");
 
   const stream = await navigator.mediaDevices.getUserMedia({
     video: true
   });
 
-  video.srcObject = stream;
+  localvideo.srcObject = stream;
   // streamの読み込み完了
   video.onloadedmetadata = () => {
     video.play();
 
     // Canvasのサイズを映像に合わせる
-    canvas.width = offscreen.width = video.videoWidth;
-    canvas.height = offscreen.height = video.videoHeight;
+    canvas.width = offscreen.width = localvideo.videoWidth;
+    canvas.height = offscreen.height = localvideo.videoHeight;
 
     tick();
   };
@@ -27,7 +27,7 @@ async function main() {
   // 1フレームごとに呼び出される処理
   function tick() {
     // カメラの映像をCanvasに描画する
-    offscreenCtx.drawImage(video, 0, 0);
+    offscreenCtx.drawImage(localvideo, 0, 0);
 
     // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
     const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);

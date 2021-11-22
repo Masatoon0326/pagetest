@@ -215,19 +215,11 @@ function startSelectedVideoAudio() {
 
  function tick() {
   // カメラの映像をCanvasに描画する
-  offscreenCtx.drawImage(Video, 0, 0);
+  offscreenCtx.drawImage(video, 0, 0);
 
   // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
   const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
-  var nowimageData = imageData;
-  if (flag == 1){
-    var preimageData = imageData;
-    var processedimageData = imageData;
-    flag += 2;
-  }
-  // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
-  //filter(processedimageData.data, nowimageData.data, preimageData.data);
-
+  
   // オフスクリーンCanvasを更新する
   offscreenCtx.putImageData(imageData, 0, 0);
 

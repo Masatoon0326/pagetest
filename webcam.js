@@ -11,6 +11,8 @@ const ctx = canvas.getContext("2d");
 // 画像処理用のオフスクリーンCanvas
 const offscreen = document.createElement("canvas");
 const offscreenCtx = offscreen.getContext("2d");
+
+
 // カメラから映像を取得するためのvideo要素→local_videoにする
 //const video = document.createElement("video");
 var flag = 1;
@@ -227,7 +229,7 @@ function startSelectedVideoAudio() {
   //filter(processedimageData.data, nowimageData.data, preimageData.data);
 
   // オフスクリーンCanvasを更新する
-  offscreenCtx.putImageData(nowdata, 0, 0);
+  offscreenCtx.putImageData(nowimageData, 0, 0);
 
   // 表示用Canvasに描画する
   ctx.drawImage(offscreen, 0, 0);

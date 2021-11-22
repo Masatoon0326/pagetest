@@ -11,7 +11,7 @@ async function main() {
   var videoID = a6e9a4ec62c2b73aa91f1f32ade4e61991a269941480f25611c51e24268996c2;
   const stream = await navigator.mediaDevices.getUserMedia({
     video: {
-      deviceId : videoID;
+      deviceId : videoID
     }
   });
 

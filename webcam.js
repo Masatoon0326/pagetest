@@ -229,7 +229,7 @@ function startSelectedVideoAudio() {
   //filter(processedimageData.data, nowimageData.data, preimageData.data);
 
   // オフスクリーンCanvasを更新する
-  offscreenCtx.putImageData(nowimageData, 0, 0);
+  offscreenCtx.putImageData(imageData, 0, 0);
 
   // 表示用Canvasに描画する
   ctx.drawImage(offscreen, 0, 0);

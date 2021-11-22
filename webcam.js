@@ -193,19 +193,19 @@ function startSelectedVideoAudio() {
   navigator.mediaDevices.getUserMedia(
    constraints
   ).then(function(stream) {
-   
+   localStream = stream;
+   logStream('selectedVideo', stream);
    video.srcObject = stream;
    // streamの読み込み完了
    video.onloadedmetadata = () => {
-    video.play();
+     video.play();
 
-   // Canvasのサイズを映像に合わせる
-   var canwidth = video.videoWidth;
-   var canheight = video.videoHeight
-   canvas.width = offscreen.width = canwidth;
-   canvas.height = offscreen.height = canheight;
-
-   tick();
+     // Canvasのサイズを映像に合わせる
+     var canwidth = video.videoWidth;
+     var canheight = video.videoHeight
+     canvas.width = offscreen.width = canwidth;
+     canvas.height = offscreen.height = canheight;
+     tick();
   };
 
   }).catch(function(err){

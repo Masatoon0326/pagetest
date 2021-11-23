@@ -1,147 +1,181 @@
-
 <!DOCTYPE html>
 <html>
 <head>
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
- <title>media devices</title>
+<meta charset="UTF-8">
+<title>Masatoon_CameraTest</title>
+<style>
+  div.select {
+      display: inline-block;
+      margin: 0 0 1em 0;
+  }
+
+  p.small {
+      font-size: 0.7em;
+  }
+
+  label {
+      width: 12em;
+      display: inline-block;
+  }
+</style>
+
 </head>
 <body>
-
- <button id="devices_button" onclick="getDeviceList()">getDevices</button>
- <select id="camera_list" size="1" style="width:160pt;">
-  <option>(video)</option>
- </select>
- <select id="mic_list" size="1" style="width:160pt;">
-  <option>(audio)</option>
- </select>
- <select id="speaker_list" size="1" style="width:160pt;">
-  <option>(speaker)</option>
- </select>
- <button id="start_video_button" onclick="startSelectedVideoAudio()">Start Selected Video/Audio</button>
- <button id="stop_button" onclick="stopVideo()">StopVideo</button>
- <button id="speaker_button" onclick="setSpeaker()">SetSpeaker</button>
- <button id="speaker_button" onclick="startFakeVideo()">start Fake video</button>
- <br />
- <video id="local_video" width="960px" height="720px" autoplay="1" controls="1" style="border: 1px solid;"></video>
- <div id="container"></div>
-</body>
-<script src="/socket.io/socket.io.js"></script>
-<script>
- //navigator.getUserMedia  = navigator.getUserMedia    || navigator.webkitGetUserMedia ||
- //                          navigator.mozGetUserMedia || navigator.msGetUserMedia;
- //window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
- //window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
-
- var localVideo = document.getElementById('local_video');
- var videoContainer = document.getElementById('container');
- var micList = document.getElementById("mic_list");
- var cameraList = document.getElementById("camera_list");
- var speakerList = document.getElementById("speaker_list");
-
- var localStream = null;
- 
- function stopVideo() {
-  localVideo.pause();
-  if (localVideo.srcObject) {
-    localVideo.srcObject = null;
-  }
-  else {
-    localVideo.src = "";
-  }
-
-  if (localStream) {
-   stopStream(localStream);
-   localStream = null;
-  }
- }
-
- function stopStream(stream) {
-  if (!stream) {
-   console.warn('NO stream');
-   return;
-  }
     
-  var tracks = stream.getTracks();
-  if (! tracks) {
-   console.warn('NO tracks');
-   return;
-  }
+<div class="select">
+    <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
+</div>
 
-  for (index in tracks) {
-   tracks[index].stop();
-  } 
- }  
+<div class="select">
+    <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
+</div>
 
- function logStream(msg, stream) {
-  console.log(msg + ': id=' + stream.id);
+<div class="select">
+    <label for="videoSource">Video source: </label><select id="videoSource"></select>
+</div>
 
-  var videoTracks = stream.getVideoTracks();
-  if (videoTracks) {
-   console.log('videoTracks.length=' + videoTracks.length);
-   for (var i = 0; i < videoTracks.length; i++) {
-    var track = videoTracks[i];
-    console.log(' track.id=' + track.id);
-   }
-  }
-  
-  var audioTracks = stream.getAudioTracks();
-  if (audioTracks) {
-   console.log('audioTracks.length=' + audioTracks.length);
-   for (var i = 0; i < audioTracks.length; i++) {
-    var track = audioTracks[i];
-    console.log(' track.id=' + track.id);
-   }
+<video id="video" playsinline autoplay></video>
+
+</body>
+<script src="webcam.js"></script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+var Video = document.getElementById('video');
+var micList = document.getElementById("mic_list");
+var cameraList = document.getElementById("camera_list");
+var speakerList = document.getElementById("speaker_list");
+
+var localStream = null;
+
+// 表示用のCanvas
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+// 画像処理用のオフスクリーンCanvas
+const offscreen = document.createElement("canvas");
+const offscreenCtx = offscreen.getContext("2d");
+
+
+// カメラから映像を取得するためのvideo要素→local_videoにする
+//const video = document.createElement("video");
+var flag = 1;
+
+ 
+function stopVideo() {
+ Video.pause();
+ if (Video.srcObject) {
+   Video.srcObject = null;
+ }
+ else {
+   Video.src = "";
+ }
+
+ if (localStream) {
+  stopStream(localStream);
+  localStream = null;
+ }
+}
+
+function stopStream(stream) {
+ if (!stream) {
+  console.warn('NO stream');
+  return;
+ }
+   
+ var tracks = stream.getTracks();
+ if (! tracks) {
+  console.warn('NO tracks');
+  return;
+ }
+
+ for (index in tracks) {
+  tracks[index].stop();
+ } 
+}  
+
+function logStream(msg, stream) {
+ console.log(msg + ': id=' + stream.id);
+
+ var videoTracks = stream.getVideoTracks();
+ if (videoTracks) {
+  console.log('videoTracks.length=' + videoTracks.length);
+  for (var i = 0; i < videoTracks.length; i++) {
+   var track = videoTracks[i];
+   console.log(' track.id=' + track.id);
   }
  }
+ 
+ var audioTracks = stream.getAudioTracks();
+ if (audioTracks) {
+  console.log('audioTracks.length=' + audioTracks.length);
+  for (var i = 0; i < audioTracks.length; i++) {
+   var track = audioTracks[i];
+   console.log(' track.id=' + track.id);
+  }
+ }
+}
 
 
 //--------------------
 
- function clearDeviceList() {
-  while(micList.lastChild) {
-   micList.removeChild(micList.lastChild);
-  }
-  while(cameraList.lastChild) {
-   cameraList.removeChild(cameraList.lastChild);
-  }
-  while(speakerList.lastChild) {
-   speakerList.removeChild(speakerList.lastChild);
-  }
+function clearDeviceList() {
+ while(micList.lastChild) {
+  micList.removeChild(micList.lastChild);
  }
-
- function addDevice(device) {
-  if (device.kind === 'audioinput') {
-   var id = device.deviceId;
-   var label = device.label || 'microphone'; // label is available for https 
-   var option = document.createElement('option');
-   option.setAttribute('value', id);
-   option.innerHTML = label + '(' + id + ')';;
-   micList.appendChild(option);
-  }
-  else if (device.kind === 'videoinput') {
-   var id = device.deviceId;
-   var label = device.label || 'camera'; // label is available for https 
-
-   var option = document.createElement('option');
-   option.setAttribute('value', id);
-   option.innerHTML = label + '(' + id + ')';
-   cameraList.appendChild(option);
-  }
-  else if (device.kind === 'audiooutput') {
-   var id = device.deviceId;
-   var label = device.label || 'speaker'; // label is available for https 
-
-   var option = document.createElement('option');
-   option.setAttribute('value', id);
-   option.innerHTML = label + '(' + id + ')';
-   speakerList.appendChild(option);   
-  }
-  else {
-   console.error('UNKNOWN Device kind:' + device.kind);
-  }
+ while(cameraList.lastChild) {
+  cameraList.removeChild(cameraList.lastChild);
  }
+ while(speakerList.lastChild) {
+  speakerList.removeChild(speakerList.lastChild);
+ }
+}
 
- function getDeviceList() {
+function addDevice(device) {
+ if (device.kind === 'audioinput') {
+  var id = device.deviceId;
+  var label = device.label || 'microphone'; // label is available for https 
+  var option = document.createElement('option');
+  option.setAttribute('value', id);
+  option.innerHTML = label + '(' + id + ')';;
+  micList.appendChild(option);
+ }
+ else if (device.kind === 'videoinput') {
+  var id = device.deviceId;
+  var label = device.label || 'camera'; // label is available for https 
+
+  var option = document.createElement('option');
+  option.setAttribute('value', id);
+  option.innerHTML = label + '(' + id + ')';
+  cameraList.appendChild(option);
+ }
+ else if (device.kind === 'audiooutput') {
+  var id = device.deviceId;
+  var label = device.label || 'speaker'; // label is available for https 
+
+  var option = document.createElement('option');
+  option.setAttribute('value', id);
+  option.innerHTML = label + '(' + id + ')';
+  speakerList.appendChild(option);   
+ }
+ else {
+  console.error('UNKNOWN Device kind:' + device.kind);
+ }
+}
+
+
+
+function getDeviceList() {
   clearDeviceList();
   navigator.mediaDevices.enumerateDevices()
   .then(function(devices) {
@@ -173,8 +207,8 @@
 
  function setSpeaker() {
   var speakerId = getSelectedSpeaker();
-  localVideo.volume = 0;
-  localVideo.setSinkId(speakerId)
+  Video.volume = 0;
+  Video.setSinkId(speakerId)
   .then(function() {
    console.log('setSinkID Success');
   })
@@ -190,13 +224,15 @@
   ).then(function(stream) {
    localStream = stream;
    logStream('selectedVideo', stream);
-   localVideo.srcObject = stream;
+   Video.srcObject = stream;
   }).catch(function(err){
    console.error('getUserMedia Err:', err);
   });
  }
 
- function startSelectedVideoAudio() {
+
+
+function startSelectedVideoAudio() {
   var audioId = getSelectedAudio();
   var deviceId = getSelectedVideo();
   var constraints = {
@@ -211,18 +247,65 @@
   navigator.mediaDevices.getUserMedia(
    constraints
   ).then(function(stream) {
-   localStream = stream;
-   logStream('selectedVideo', stream);
-   localVideo.srcObject = stream;
+   
+   Video.srcObject = stream;
+   // streamの読み込み完了
+   Video.onloadedmetadata = () => {
+    Video.play();
+
+   // Canvasのサイズを映像に合わせる
+   var canwidth = Video.videoWidth;
+   var canheight = Video.videoHeight
+   canvas.width = offscreen.width = canwidth;
+   canvas.height = offscreen.height = canheight;
+
+   tick();
+  };
+
   }).catch(function(err){
    console.error('getUserMedia Err:', err);
   });
  }
 
- navigator.mediaDevices.ondevicechange = function (evt) {
-  console.log('mediaDevices.ondevicechange() evt:', evt);
- };
+ function tick() {
+  // カメラの映像をCanvasに描画する
+  offscreenCtx.drawImage(Video, 0, 0);
 
+  // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
+  const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+  var nowimageData = imageData;
+  if (flag == 1){
+    var preimageData = imageData;
+    var processedimageData = imageData;
+    flag += 2;
+  }
+  // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
+  //filter(processedimageData.data, nowimageData.data, preimageData.data);
 
-</script>
-</html>
+  // オフスクリーンCanvasを更新する
+  offscreenCtx.putImageData(imageData, 0, 0);
+
+  // 表示用Canvasに描画する
+  ctx.drawImage(offscreen, 0, 0);
+  // 次フレームを処理する
+  window.requestAnimationFrame(tick);
+}
+
+function filter(data, nowdata, predata) {
+  // 画像処理を行う
+  //モノクロ化
+  for (let i = 0; i < nowdata.length; i += 4) {
+    // (r+g+b)/3
+    const color = (nowdata[i] + nowdata[i+1] + nowdata[i+2]) / 3;
+    nowdata[i] = nowdata[i+1] = nowdata[i+2] = color;
+  }
+  
+  //差分計算
+  for (let i = 0; i < canwidth; i++){
+    for(let j = 0; j < canheight; j++){
+      let delta = 128 + (nowdata[i * canheight * 4 + j * 4 + 0] - predata[i * canheight * 4 + j * 4 + 0]) * 10;
+      data[i * canheight * 4 + j * 4 + 0] = data[i * canheight * 4 + j * 4 + 1] = data[i * canheight * 4 + j * 4 + 2] = Math.abs(delta);
+    }
+  }
+  predata = nowdata;
+}

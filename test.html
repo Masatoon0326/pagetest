@@ -6,60 +6,90 @@
  <title>media devices</title>
 </head>
 <body>
-<canvas id="canvas"></canvas>
+    <video width="160" height="120" autoplay></video>
+    <div>
+        <canvas id="c1" width="80" height="60"></canvas>
+        <canvas id="c2" width="80" height="60"></canvas>
+        <canvas id="c3" width="80" height="60"></canvas>
+    </div>
 </body>
 <script>
-async function main() {
-  // 表示用のCanvas
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  // 画像処理用のオフスクリーンCanvas
-  const offscreen = document.createElement("canvas");
-  const offscreenCtx = offscreen.getContext("2d");
-  // カメラから映像を取得するためのvideo要素
-  const video = document.createElement("video");
+onst constraints = { audio: false, video: { width: 160, height: 120 } }; 
 
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: true
-  });
-
-  video.srcObject = stream;
-  // streamの読み込み完了
-  video.onloadedmetadata = () => {
+navigator.mediaDevices.getUserMedia(constraints)
+.then(function(mediaStream) {
+  const video = document.querySelector('video');
+  video.srcObject = mediaStream;
+  video.onloadedmetadata = function(e) {
     video.play();
+  };
+})
+.catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
 
-    // Canvasのサイズを映像に合わせる
-    canvas.width = offscreen.width = video.videoWidth;
-    canvas.height = offscreen.height = video.videoHeight;
 
-    tick();
+// https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia
+
+
+
+let processor = {
+    timerCallback: function() {
+      if (this.video.paused || this.video.ended) {
+        return;
+      }
+      this.computeFrame();
+      let self = this;
+      setTimeout(function () {
+          self.timerCallback();
+        }, 0);
+    },
+
+    doLoad: function() {
+      this.video = document.querySelector("video");
+      this.c1 = document.getElementById("c1");
+      this.ctx1 = this.c1.getContext("2d");
+      this.c2 = document.getElementById("c2");
+      this.ctx2 = this.c2.getContext("2d");
+      this.c3 = document.getElementById("c3");
+      this.ctx3 = this.c3.getContext("2d");
+      let self = this;
+      this.video.addEventListener("play", function() {
+          self.width = self.video.videoWidth / 2;
+          self.height = self.video.videoHeight / 2;
+          self.timerCallback();
+        }, false);
+    },
+
+    computeFrame: function() {
+      let frame1 = this.ctx1.getImageData(0, 0, this.width, this.height);
+      this.ctx2.putImageData(frame1, 0, 0);
+      this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
+
+
+      frame1 = this.ctx1.getImageData(0, 0, this.width, this.height);
+      let frame2 = this.ctx2.getImageData(0, 0, this.width, this.height);
+
+      let l = frame1.data.length / 4;
+
+      diffFrame = this.ctx3.createImageData(this.width, this.height);
+
+      for (let i = 0; i < l; i++) {
+        let r = frame1.data[i * 4 + 0] - frame2.data[i * 4 + 0];
+        let g = frame1.data[i * 4 + 1] - frame2.data[i * 4 + 1];
+        let b = frame1.data[i * 4 + 2] - frame2.data[i * 4 + 2];
+        diffFrame.data[i * 4 + 0] = Math.abs(r);
+        diffFrame.data[i * 4 + 1] = Math.abs(g);
+        diffFrame.data[i * 4 + 2] = Math.abs(b);
+        diffFrame.data[i * 4 + 3] = 255;
+      }
+
+      this.ctx3.putImageData(diffFrame, 0, 0);
+
+      return;
+    }
   };
 
-  // 1フレームごとに呼び出される処理
-  function tick() {
-    // カメラの映像をCanvasに描画する
-    offscreenCtx.drawImage(video, 0, 0);
-
-    // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
-    const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
-    // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
-    filter(imageData.data);
-
-    // オフスクリーンCanvasを更新する
-    offscreenCtx.putImageData(imageData, 0, 0);
-
-    // 表示用Canvasに描画する
-    ctx.drawImage(offscreen, 0, 0);
-
-    // 次フレームを処理する
-    window.requestAnimationFrame(tick);
-  }
-
-  function filter(data) {
-    // 画像処理を行う
-  }
-}
-
-main();
+document.addEventListener("DOMContentLoaded", () => {
+  processor.doLoad();
+});
 </script>
 </html>

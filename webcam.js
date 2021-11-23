@@ -64,11 +64,11 @@ function tick() {
     var preimage = ctx.createImageData(imageData);
     var nowimage = ctx.createImageData(imageData);
   }
-  nowimage.data = imageData.data;
+  nowimage.data.set(imageData.data);
 
   // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
   filter(imageData.data, preimage.data, nowimage.data);
-  preimage.data = nowimage.data;
+  preimage.data.set(nowimage.data);
 
   // オフスクリーンCanvasを更新する
   offscreenCtx.putImageData(imageData, 0, 0);

@@ -37,6 +37,7 @@ function gotDevices(deviceInfos) {
 navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
 function gotStream(stream) {
+  window.stream = stream;
   video.srcObject = stream;
   video.onloadedmetadata = () => {
     video.play();

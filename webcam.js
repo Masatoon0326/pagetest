@@ -91,8 +91,7 @@ function start() {
     video: {deviceId: videoSource ? {exact: videoSource} : undefined}
   };
   
-  const stream = await navigator.mediaDevices.getUserMedia(constraints);
-  gotStream(stream);
+  navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
 }
 
 videoSelect.onchange = start;

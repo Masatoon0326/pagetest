@@ -1,4 +1,4 @@
-const videoElement = document.querySelector('video');
+const video = document.querySelector('video');
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [videoSelect];
 
@@ -32,7 +32,7 @@ navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
 function gotStream(stream) {
   window.stream = stream; // make stream available to console
-  videoElement.srcObject = stream;
+  video.srcObject = stream;
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
 }

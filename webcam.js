@@ -16,13 +16,7 @@ function gotDevices(deviceInfos) {
     const deviceInfo = deviceInfos[i];
     const option = document.createElement('option');
     option.value = deviceInfo.deviceId;
-    if (deviceInfo.kind === 'audioinput') {
-      option.text = deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
-      audioInputSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'audiooutput') {
-      option.text = deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
-      audioOutputSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'videoinput') {
+    if (deviceInfo.kind === 'videoinput') {
       option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
       videoSelect.appendChild(option);
     } else {

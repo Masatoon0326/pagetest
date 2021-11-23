@@ -2,32 +2,40 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Webカメラから画像処理</title>
+<title>Masatoon_CameraTest</title>
+<style>
+  div.select {
+      display: inline-block;
+      margin: 0 0 1em 0;
+  }
+
+  p.small {
+      font-size: 0.7em;
+  }
+
+  label {
+      width: 12em;
+      display: inline-block;
+  }
+</style>
+
 </head>
 <body>
     
-<button id="devices_button" onclick="getDeviceList()">getDevices</button>
-<select id="camera_list" size="1" style="width:160pt;">
-<option>(video)</option>
-</select>
-<select id="mic_list" size="1" style="width:160pt;">
-<option>(audio)</option>
-</select>
-<select id="speaker_list" size="1" style="width:160pt;">
-<option>(speaker)</option>
-</select>
-<button id="start_video_button" onclick="startSelectedVideoAudio()">Start Selected Video/Audio</button>
-<button id="stop_button" onclick="stopVideo()">StopVideo</button>
-<button id="speaker_button" onclick="setSpeaker()">SetSpeaker</button>
-<button id="speaker_button" onclick="startFakeVideo()">start Fake video</button>
-<br>
- 
- 
-<div>
-<br>cameratest<br>
-<canvas id="canvas"></canvas>
+<div class="select">
+    <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
 </div>
-<script src="webcam.js"></script>
-<script src="/socket.io/socket.io.js"></script>
+
+<div class="select">
+    <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
+</div>
+
+<div class="select">
+    <label for="videoSource">Video source: </label><select id="videoSource"></select>
+</div>
+
+<video id="video" playsinline autoplay></video>
+
 </body>
+<script src="webcam.js"></script>
 </html>

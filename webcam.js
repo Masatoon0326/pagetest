@@ -2,7 +2,7 @@ const videoElement = document.querySelector('video');
 const audioInputSelect = document.querySelector('select#audioSource');
 const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoSelect = document.querySelector('select#videoSource');
-const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+const selectors = [videoSelect];
 
 function gotDevices(deviceInfos) {
   // Handles being called several times to update labels. Preserve values.
@@ -49,7 +49,6 @@ function start() {
       track.stop();
     });
   }
-  const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
     audio: false,
@@ -57,9 +56,6 @@ function start() {
   };
   navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
 }
-
-audioInputSelect.onchange = start;
-audioOutputSelect.onchange = changeAudioDestination;
 
 videoSelect.onchange = start;
 

@@ -66,7 +66,9 @@ function tick() {
 
   if (flag == 1){
     flag = 2;
+    prescrCtx.putImageData(outimage,0,0);
     var preimage = prescrCtx.createImageData(outimage);
+    nowscrCtx.putImageData(outimage,0,0);
     var nowimage = nowscrCtx.createImageData(outimage);
     console.log('Got Fist Flag');
   }

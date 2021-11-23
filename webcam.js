@@ -68,15 +68,12 @@ function gotStream(stream) {
     // 次フレームを処理する
     window.requestAnimationFrame(tick);
   }
-
-  function filter(data) {
-    // 画像処理を行う
-  }
-
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
 }
-
+function filter(data) {
+  // 画像処理を行う
+}
 function handleError(error) {
   console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
 }

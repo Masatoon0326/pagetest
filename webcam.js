@@ -8,9 +8,9 @@ const ctx = canvas.getContext("2d");
 const offscreen = document.createElement("canvas");
 const offscreenCtx = offscreen.getContext("2d");
 //
-var prescreen = document.createElement("canvas");
+var prescreen = document.createElement("c1");
 var prescrCtx = prescreen.getContext("2d");
-var nowscreen = document.createElement("canvas");
+var nowscreen = document.createElement("c2");
 var nowscrCtx = prescreen.getContext("2d");
 var flag = 1;
 
@@ -67,6 +67,7 @@ function tick() {
   if (flag == 1){
     flag = 2;
     var preimage = prescrCtx.createImageData(outimage);
+    
     var nowimage = nowscrCtx.createImageData(outimage);
   }
   nowscrCtx.putImageData(outimage,0,0);

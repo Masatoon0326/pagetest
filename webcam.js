@@ -1,5 +1,5 @@
-//const video = document.querySelector('video');
-const video = document.createElement("video");
+const video = document.querySelector('video');
+//const video = document.createElement("video");
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [videoSelect];
 const canvas = document.getElementById("canvas");

@@ -57,21 +57,21 @@ function tick() {
   // カメラの映像をCanvasに描画する
   offscreenCtx.drawImage(video, 0, 0);
   // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
-  const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+  const outimage = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
 
   if (flag == 1){
     flag = 2;
-    var preimage = ctx.createImageData(imageData);
-    var nowimage = ctx.createImageData(imageData);
+    var preimage = ctx.createImageData(outimage);
+    var nowimage = ctx.createImageData(outimage);
   }
-  nowimage.data.set(imageData.data);
+  nowimage.data.set(outimage.data);
 
-  // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
-  filter(imageData.data, preimage.data, nowimage.data);
+  // outimage.dataはreadonlyなのでfilterメソッドで直接書き換える
+  filter(outimage.data, preimage.data, nowimage.data);
   preimage.data.set(nowimage.data);
 
   // オフスクリーンCanvasを更新する
-  offscreenCtx.putImageData(imageData, 0, 0);
+  offscreenCtx.putImageData(outimage, 0, 0);
   // 表示用Canvasに描画する
   ctx.drawImage(offscreen, 0, 0);
   // 次フレームを処理する

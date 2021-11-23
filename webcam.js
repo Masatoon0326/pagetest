@@ -1,6 +1,12 @@
 const video = document.querySelector('video');
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [videoSelect];
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+// 画像処理用のオフスクリーンCanvas
+const offscreen = document.createElement("canvas");
+const offscreenCtx = offscreen.getContext("2d");
+
 
 function gotDevices(deviceInfos) {
   // Handles being called several times to update labels. Preserve values.
@@ -32,8 +38,41 @@ navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
 function gotStream(stream) {
   video.srcObject = stream;
+  video.onloadedmetadata = () => {
+    video.play();
+
+    // Canvasのサイズを映像に合わせる
+    canvas.width = offscreen.width = video.videoWidth;
+    canvas.height = offscreen.height = video.videoHeight;
+
+    tick();
+  };
+  
+  function tick() {
+    // カメラの映像をCanvasに描画する
+    offscreenCtx.drawImage(video, 0, 0);
+
+    // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
+    const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+    // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
+    filter(imageData.data);
+
+    // オフスクリーンCanvasを更新する
+    offscreenCtx.putImageData(imageData, 0, 0);
+
+    // 表示用Canvasに描画する
+    ctx.drawImage(offscreen, 0, 0);
+
+    // 次フレームを処理する
+    window.requestAnimationFrame(tick);
+  }
+
+  function filter(data) {
+    // 画像処理を行う
+  }
+
   // Refresh button list in case labels have become available
-  return navigator.mediaDevices.enumerateDevices();
+  //return navigator.mediaDevices.enumerateDevices();
 }
 
 function handleError(error) {

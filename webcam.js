@@ -67,9 +67,10 @@ function gotStream(stream) {
 
     // 次フレームを処理する
     window.requestAnimationFrame(tick);
+    // Refresh button list in case labels have become available
+    return navigator.mediaDevices.enumerateDevices();
   }
-  // Refresh button list in case labels have become available
-  return navigator.mediaDevices.enumerateDevices();
+
 }
 function filter(data) {
   // 画像処理を行う

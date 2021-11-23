@@ -7,7 +7,7 @@ const ctx = canvas.getContext("2d");
 // 画像処理用のオフスクリーンCanvas
 const offscreen = document.createElement("canvas");
 const offscreenCtx = offscreen.getContext("2d");
-
+var flag = 1;
 
 function gotDevices(deviceInfos) {
   // Handles being called several times to update labels. Preserve values.
@@ -52,32 +52,45 @@ function gotStream(stream) {
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
 }
+
 function tick() {
   // カメラの映像をCanvasに描画する
   offscreenCtx.drawImage(video, 0, 0);
-
   // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
   const imageData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+
+  if (flag == 1){
+    flag = 2;
+    var preimage = ctx.createImageData(imageData);
+    var nowimage = ctx.createImageData(imageData);
+  }
+  nowimage.data = imageData.data;
+
   // imageData.dataはreadonlyなのでfilterメソッドで直接書き換える
-  filter(imageData.data);
+  filter(imageData.data, preimage.data, nowimage.data);
+  preimage.data = nowimage.data;
 
   // オフスクリーンCanvasを更新する
   offscreenCtx.putImageData(imageData, 0, 0);
-
   // 表示用Canvasに描画する
   ctx.drawImage(offscreen, 0, 0);
-
   // 次フレームを処理する
   window.requestAnimationFrame(tick);
 }
-function filter(data) {
+
+function filter(outdata, predata, nowdata) {
   // 画像処理を行う
+  for (let i = 0; i < outdata.length; i += 1){
+    outdata[i] = Math.abs(5*(nowdata[i]-predata[i]))
+  }
 }
+
 function handleError(error) {
   console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
 }
 
 function start() {
+  flag = 1
   if (window.stream) {
     window.stream.getTracks().forEach(track => {
       track.stop();

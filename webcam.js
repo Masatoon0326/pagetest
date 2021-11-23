@@ -1,6 +1,4 @@
 const videoElement = document.querySelector('video');
-const audioInputSelect = document.querySelector('select#audioSource');
-const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoSelect = document.querySelector('select#videoSource');
 const selectors = [videoSelect];
 

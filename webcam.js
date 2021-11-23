@@ -72,7 +72,7 @@ function gotStream(stream) {
   }
 
   // Refresh button list in case labels have become available
-  //return navigator.mediaDevices.enumerateDevices();
+  return navigator.mediaDevices.enumerateDevices();
 }
 
 function handleError(error) {

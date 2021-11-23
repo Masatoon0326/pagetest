@@ -7,6 +7,11 @@ const ctx = canvas.getContext("2d");
 // 画像処理用のオフスクリーンCanvas
 const offscreen = document.createElement("canvas");
 const offscreenCtx = offscreen.getContext("2d");
+//
+var prescreen = document.createElement("canvas");
+var prescrCtx = prescreen.getContext("2d");
+var nowscreen = document.createElement("canvas");
+var nowscrCtx = prescreen.getContext("2d");
 var flag = 1;
 
 function gotDevices(deviceInfos) {
@@ -61,16 +66,14 @@ function tick() {
 
   if (flag == 1){
     flag = 2;
-    var preimage = ctx.createImageData(outimage);
-    var preimgCtx = preimage.getContext("2d");
-    var nowimage = ctx.createImageData(outimage);
-    var nowimgCtx = nowimage.getContext("2d");
+    var preimage = prescrCtx.createImageData(outimage);
+    var nowimage = nowscrCtx.createImageData(outimage);
   }
-  nowimgCtx.putImageData(outimage,0,0);
+  nowscrCtx.putImageData(outimage,0,0);
 
   // outimage.dataはreadonlyなのでfilterメソッドで直接書き換える
   filter(outimage.data, preimage.data, nowimage.data);
-  preimgCtx.putImageData(nowimage,0,0);
+  prescrCtx.putImageData(nowimage,0,0);
 
   // オフスクリーンCanvasを更新する
   offscreenCtx.putImageData(outimage, 0, 0);

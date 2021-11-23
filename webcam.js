@@ -111,15 +111,13 @@ function tick() {
       }
 
       this.ctx3.putImageData(diffFrame, 0, 0);
-
       return;
     }
   };
 
-  //offscreenCtx.putImageData(this.ctx3, 0, 0);
-  // 表示用Canvasに描画する
-  //ctx.drawImage(offscreen, 0, 0);
-  // 次フレームを処理する
+  document.addEventListener("DOMContentLoaded", () => {
+  processor.doLoad();
+  });
   window.requestAnimationFrame(tick);
 }
 

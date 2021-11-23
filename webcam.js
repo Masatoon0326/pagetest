@@ -62,13 +62,15 @@ function tick() {
   if (flag == 1){
     flag = 2;
     var preimage = ctx.createImageData(outimage);
+    var preimgCtx = preimage.getContext("2d");
     var nowimage = ctx.createImageData(outimage);
+    var nowimgCtx = nowimage.getContext("2d");
   }
-  nowimage.getContext("2d").putImageData(outimage,0,0);
+  nowimgCtx.putImageData(outimage,0,0);
 
   // outimage.dataはreadonlyなのでfilterメソッドで直接書き換える
   filter(outimage.data, preimage.data, nowimage.data);
-  preimage.getContext("2d").putImageData(nowimage,0,0);
+  preimgCtx.putImageData(nowimage,0,0);
 
   // オフスクリーンCanvasを更新する
   offscreenCtx.putImageData(outimage, 0, 0);

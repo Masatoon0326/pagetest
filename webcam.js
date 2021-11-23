@@ -59,27 +59,64 @@ function gotStream(stream) {
 }
 
 function tick() {
-  // カメラの映像をCanvasに描画する
-  offscreenCtx.drawImage(video, 0, 0);
-  // イメージデータを取得する（[r,g,b,a,r,g,b,a,...]のように1次元配列で取得できる）
-  const outimage = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+  let processor = {
+    timerCallback: function() {
+      if (this.video.paused || this.video.ended) {
+        return;
+      }
+      this.computeFrame();
+      let self = this;
+      setTimeout(function () {
+          self.timerCallback();
+        }, 0);
+    },
 
-  if (flag == 1){
-    flag = 2;
-    prescrCtx.putImageData(outimage,0,0);
-    var preimage = prescrCtx.createImageData(outimage);
-    nowscrCtx.putImageData(outimage,0,0);
-    var nowimage = nowscrCtx.createImageData(outimage);
-    console.log('Got Fist Flag');
-  }
-  nowscrCtx.putImageData(outimage,0,0);
+    doLoad: function() {
+      this.video = document.querySelector("video");
+      this.c1 = document.getElementById("c1");
+      this.ctx1 = this.c1.getContext("2d");
+      this.c2 = document.getElementById("c2");
+      this.ctx2 = this.c2.getContext("2d");
+      this.c3 = document.getElementById("c3");
+      this.ctx3 = this.c3.getContext("2d");
+      let self = this;
+      this.video.addEventListener("play", function() {
+          self.width = self.video.videoWidth / 2;
+          self.height = self.video.videoHeight / 2;
+          self.timerCallback();
+        }, false);
+    },
 
-  // outimage.dataはreadonlyなのでfilterメソッドで直接書き換える
-  filter(outimage.data, preimage.data, nowimage.data);
-  prescrCtx.putImageData(nowimage,0,0);
+    computeFrame: function() {
+      let frame1 = this.ctx1.getImageData(0, 0, this.width, this.height);
+      this.ctx2.putImageData(frame1, 0, 0);
+      this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
 
-  // オフスクリーンCanvasを更新する
-  offscreenCtx.putImageData(outimage, 0, 0);
+
+      frame1 = this.ctx1.getImageData(0, 0, this.width, this.height);
+      let frame2 = this.ctx2.getImageData(0, 0, this.width, this.height);
+
+      let l = frame1.data.length / 4;
+
+      diffFrame = this.ctx3.createImageData(this.width, this.height);
+
+      for (let i = 0; i < l; i++) {
+        let r = frame1.data[i * 4 + 0] - frame2.data[i * 4 + 0];
+        let g = frame1.data[i * 4 + 1] - frame2.data[i * 4 + 1];
+        let b = frame1.data[i * 4 + 2] - frame2.data[i * 4 + 2];
+        diffFrame.data[i * 4 + 0] = Math.abs(r);
+        diffFrame.data[i * 4 + 1] = Math.abs(g);
+        diffFrame.data[i * 4 + 2] = Math.abs(b);
+        diffFrame.data[i * 4 + 3] = 255;
+      }
+
+      this.ctx3.putImageData(diffFrame, 0, 0);
+
+      return;
+    }
+  };
+
+  offscreenCtx.putImageData(this.ctx3, 0, 0);
   // 表示用Canvasに描画する
   ctx.drawImage(offscreen, 0, 0);
   // 次フレームを処理する

@@ -116,9 +116,9 @@ function tick() {
     }
   };
 
-  offscreenCtx.putImageData(this.ctx3, 0, 0);
+  //offscreenCtx.putImageData(this.ctx3, 0, 0);
   // 表示用Canvasに描画する
-  ctx.drawImage(offscreen, 0, 0);
+  //ctx.drawImage(offscreen, 0, 0);
   // 次フレームを処理する
   window.requestAnimationFrame(tick);
 }

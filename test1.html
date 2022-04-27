@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>テキスト表示</title>
+  
+</head>
+<body id="index">
+  
+  <!-- header始まり -->
+  <header>
+    <div id="insertText"></div>
+    <script>
+    fetch( "test.txt" ).then( res => res.text() ).then( text => {
+    document.getElementById( "insertText" ).textContent = text;
+    } );
+    </script>
+  <!-- wrap終わり -->
+  
+  <!-- footer始まり -->
+  <footer>
+    <small></small>
+  </footer>
+  <!-- footer終わり -->
+  
+</body>
+</html>

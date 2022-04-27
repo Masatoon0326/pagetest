@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>テキスト表示</title>
+  <link href="https://fonts.googleapis.com/css?family=Bitter:400,700" rel="stylesheet">
+  <link href="test.css" rel="stylesheet">
+</head>
+<body>
+  
+    <p>これはHTMLに直接書いた文章です。</p>
+    <div id="insertText"></div>
+    <script>
+    fetch( "../test.txt" ).then( res => res.text() ).then( text => {
+    document.getElementById( "insertText" ).textContent = text;
+    } );
+    </script>
+  <!-- wrap終わり -->
+  
+  <!-- footer始まり -->
+  <footer>
+    <small></small>
+  </footer>
+  <!-- footer終わり -->
+  
+</body>
+</html>

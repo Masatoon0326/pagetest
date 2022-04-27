@@ -1,95 +1,27 @@
-
 <!DOCTYPE html>
 <html>
 <head>
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
- <title>media devices</title>
+  <meta charset="UTF-8">
+  <title>テキスト表示</title>
+  
 </head>
-<body>
-    <video autoplay muted playsinline width="160" height="120"></video>
-    <div>
-        <canvas id="c1" width="80" height="60"></canvas>
-        <canvas id="c2" width="80" height="60"></canvas>
-        <canvas id="c3" width="80" height="60"></canvas>
-    </div>
+<body id="index">
+  
+  <!-- header始まり -->
+  <header>
+    <div id="insertText"></div>
+    <script>
+    fetch( "test.txt" ).then( res => res.text() ).then( text => {
+    document.getElementById( "insertText" ).textContent = text;
+    } );
+    </script>
+  <!-- wrap終わり -->
+  
+  <!-- footer始まり -->
+  <footer>
+    <small></small>
+  </footer>
+  <!-- footer終わり -->
+  
 </body>
-<script>
-const constraints = { audio: false, video: { width: 160, height: 120 } }; 
-
-navigator.mediaDevices.getUserMedia(constraints)
-.then(function(mediaStream) {
-  const video = document.querySelector('video');
-  video.srcObject = mediaStream;
-  video.onloadedmetadata = function(e) {
-    video.play();
-  };
-})
-.catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
-
-
-// https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia
-
-
-
-let processor = {
-    timerCallback: function() {
-      if (this.video.paused || this.video.ended) {
-        return;
-      }
-      this.computeFrame();
-      let self = this;
-      setTimeout(function () {
-          self.timerCallback();
-        }, 0);
-    },
-
-    doLoad: function() {
-      this.video = document.querySelector("video");
-      this.c1 = document.getElementById("c1");
-      this.ctx1 = this.c1.getContext("2d");
-      this.c2 = document.getElementById("c2");
-      this.ctx2 = this.c2.getContext("2d");
-      this.c3 = document.getElementById("c3");
-      this.ctx3 = this.c3.getContext("2d");
-      let self = this;
-      this.video.addEventListener("play", function() {
-          self.width = self.video.videoWidth / 2;
-          self.height = self.video.videoHeight / 2;
-          self.timerCallback();
-        }, false);
-    },
-
-    computeFrame: function() {
-      let frame1 = this.ctx1.getImageData(0, 0, this.width, this.height);
-      this.ctx2.putImageData(frame1, 0, 0);
-      this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
-
-
-      frame1 = this.ctx1.getImageData(0, 0, this.width, this.height);
-      let frame2 = this.ctx2.getImageData(0, 0, this.width, this.height);
-
-      let l = frame1.data.length / 4;
-
-      diffFrame = this.ctx3.createImageData(this.width, this.height);
-
-      for (let i = 0; i < l; i++) {
-        let r = frame1.data[i * 4 + 0] - frame2.data[i * 4 + 0];
-        let g = frame1.data[i * 4 + 1] - frame2.data[i * 4 + 1];
-        let b = frame1.data[i * 4 + 2] - frame2.data[i * 4 + 2];
-        diffFrame.data[i * 4 + 0] = Math.abs(r*5);
-        diffFrame.data[i * 4 + 1] = Math.abs(g*5);
-        diffFrame.data[i * 4 + 2] = Math.abs(b*5);
-        diffFrame.data[i * 4 + 3] = 255;
-      }
-
-      this.ctx3.putImageData(diffFrame, 0, 0);
-
-      return;
-    }
-  };
-
-document.addEventListener("DOMContentLoaded", () => {
-  processor.doLoad();
-});
-</script>
 </html>

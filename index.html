@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像スライダー</title>
+    <style>
+        .container {
+            text-align: center;
+            position: relative;
+        }
+        .container img {
+            width: auto;
+            height: auto;
+            max-width: none;
+            max-height: none;
+            transform: scale(1);
+            transform-origin: 0 0;
+        }
+        .button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .prev {
+            left: 10px;
+        }
+        .skipprev {
+            left: 100px;
+        }
+        .next {
+            right: 10px;
+        }
+        .skipnext {
+            right: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="button skipprev" onclick="changeImage(-20)">＜＜</div>
+        <div class="button prev" onclick="changeImage(-1)">＜</div>
+        <img id="image" src="img/rand100.png" alt="Image">
+        <div class="button next" onclick="changeImage(1)">＞</div>
+        <div class="button skipnext" onclick="changeImage(20)">＞＞</div>
+    </div>
+
+    <script>
+        let currentIndex = 100;
+
+        function changeImage(direction) {
+            currentIndex += direction;
+            const image = document.getElementById('image');
+            image.src = `img/rand${currentIndex}.png`;
+        }
+    </script>
+</body>
+</html>

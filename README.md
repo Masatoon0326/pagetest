@@ -12,4 +12,4 @@ url(https://masatoon0326.github.io/pagetest/test1.html)
 
 url(https://masatoon0326.github.io/pagetest/hina.html)
 
-url(https://masatoon0326.github.io/pagetest/html.html)
+url(https://masatoon0326.github.io/pagetest/index.html)

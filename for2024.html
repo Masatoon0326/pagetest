@@ -3,17 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>画像スライダー</title>
+    <title>固定サイズのコンテナと指定サイズの背景画像</title>
     <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
         .container {
-            width: 1050px; /* 例: 画像の幅 */
-            height: 550px; /* 例: 画像の高さ */
             position: relative;
-            background-image: url('img/rand100.png');
+            width: 1050px; /* 固定サイズの幅 */
+            height: 550px; /* 固定サイズの高さ */
+            background-image: url('image.png');
             background-repeat: no-repeat;
             background-position: center;
-            background-size: 1050px 550px;
+            background-size: 1050px 550px; /* 指定のサイズ */
         }
+
         .left-half, .right-half {
             position: absolute;
             top: 0;
@@ -32,10 +42,10 @@
     </style>
 </head>
 <body>
-    <div class="container" id="image"></div>
-    <div class="left-half" onclick="changeImage(-1)"></div>
-    <div class="right-half" onclick="changeImage(1)"></div>
-
+    <div class="container" id="image">
+    </div>
+        <div class="left-half" onclick="changeImage(-1)"></div>
+        <div class="right-half" onclick="changeImage(1)"></div>
 
     <script>
         let currentIndex = 100;

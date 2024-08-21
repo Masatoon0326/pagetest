@@ -14,14 +14,13 @@
             overflow: hidden;
         }
         .container {
-            text-align: center;
+            width: 1050px; /* 例: 画像の幅 */
+            height: 550px; /* 例: 画像の高さ */
             position: relative;
             background-image: url('img/rand100.png');
             background-repeat: no-repeat;
             background-position: center;
-            background-size: contain;
-            width: 1050px; /* 例: 画像の幅 */
-            height: 550px; /* 例: 画像の高さ */
+            background-size: 1050px 550px;
         }
         .container img {
             width: auto;
@@ -49,7 +48,8 @@
     </style>
 </head>
 <body>
-    <div class="container" id="image">        </div>
+    <div class="container" id="image">
+    </div>
         <div class="left-half" onclick="changeImage(-1)"></div>
         <div class="right-half" onclick="changeImage(1)"></div>
 

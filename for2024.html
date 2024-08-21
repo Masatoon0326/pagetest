@@ -22,14 +22,6 @@
             background-position: center;
             background-size: 1050px 550px;
         }
-        .container img {
-            width: auto;
-            height: auto;
-            max-width: none;
-            max-height: none;
-            transform: scale(1);
-            transform-origin: 0 0;
-        }
         .left-half, .right-half {
             position: absolute;
             top: 0;
@@ -48,10 +40,9 @@
     </style>
 </head>
 <body>
-    <div class="container" id="image">
-    </div>
-        <div class="left-half" onclick="changeImage(-1)"></div>
-        <div class="right-half" onclick="changeImage(1)"></div>
+    <div class="container" id="image"></div>
+    <div class="left-half" onclick="changeImage(-1)"></div>
+    <div class="right-half" onclick="changeImage(1)"></div>
 
 
     <script>

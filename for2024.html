@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画像スライダー</title>
     <style>
-        html, body {
-            margin: 0;
-            height: 600px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
         .container {
             width: 1050px; /* 例: 画像の幅 */
-            height: 550px; /* 例: 画像の高さ */
+            height: 600px; /* 例: 画像の高さ */
             position: relative;
             background-image: url('img/rand100.png');
             background-repeat: no-repeat;
             background-position: center;
+            background-size: 1050px 550px;
         }
         .left-half, .right-half {
             position: absolute;

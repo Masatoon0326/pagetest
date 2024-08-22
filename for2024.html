@@ -2,55 +2,226 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <title>固定サイズのコンテナと指定サイズの背景画像</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>円の表示プログラム</title>
     <style>
-        html, body {
-            margin: 0;
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        .container {
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
             position: relative;
-            width: 1050px; /* 固定サイズの幅 */
-            height: 550px; /* 固定サイズの高さ */
-            background-image: url('img/rand100.png');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 1050px 550px; /* 指定のサイズ */
         }
 
-        .left-half, .right-half {
+        #toggleButton {
             position: absolute;
-            top: 0;
-            width: 50%;
-            height: 100%;
+            top: 10px;
+            left: 10px;
+            padding: 10px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        .left-half {
-            left: 0;
+        #toggleButton:hover {
+            background-color: #0056b3;
         }
 
-        .right-half {
-            right: 0;
+        #inputContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            visibility: visible;
+        }
+
+        .inputGroup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #displayButton {
+            width: 100px;
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            visibility: visible;
+        }
+
+        #displayButton:hover {
+            background-color: #0056b3;
+        }
+
+        #circleContainerWrapper {
+            position: relative;
+            width: fit-content;
+        }
+
+        #circleContainer {
+            display: grid;
+            justify-content: center;
+        }
+
+        .circle {
+            background-color: black;
+            border-radius: 50%;
+        }
+
+        .cornerNumber {
+            position: absolute;
+            font-size: 20px;
+            color: red;
+        }
+
+        .cornerNumber.top-left {
+            top: -25px;
+            left: -25px;
+        }
+
+        .cornerNumber.top-right {
+            top: -25px;
+            right: -25px;
+        }
+
+        .cornerNumber.bottom-left {
+            bottom: -25px;
+            left: -25px;
+        }
+
+        .cornerNumber.bottom-right {
+            bottom: -25px;
+            right: -25px;
+        }
+
+        #pixelPitch {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="image">
+    <button id="toggleButton" onclick="toggleInputVisibility()">設定切り替え</button>
+
+    <div id="inputContainer">
+        <div class="inputGroup">
+            <label for="rowsInput">縦の個数</label>
+            <input type="number" id="rowsInput" min="1" max="50" placeholder="例: 5">
+        </div>
+        <div class="inputGroup">
+            <label for="columnsInput">横の個数</label>
+            <input type="number" id="columnsInput" min="1" max="50" placeholder="例: 3">
+        </div>
+        <div class="inputGroup">
+            <label for="diameterInput">円の直径 (px)</label>
+            <input type="number" id="diameterInput" min="1" max="100" placeholder="例: 10">
+        </div>
+        <div class="inputGroup">
+            <label for="gapInput">間隔 (px)</label>
+            <input type="number" id="gapInput" min="0" max="100" placeholder="例: 20">
+        </div>
     </div>
-        <div class="left-half" onclick="changeImage(-1)"></div>
-        <div class="right-half" onclick="changeImage(1)"></div>
+
+    <button id="displayButton" onclick="displayCircles()">表示</button>
+
+    <div id="circleContainerWrapper">
+        <div id="circleContainer"></div>
+        <div class="cornerNumber top-left">1</div>
+        <div class="cornerNumber top-right">1</div>
+        <div class="cornerNumber bottom-left">1</div>
+        <div class="cornerNumber bottom-right">1</div>
+    </div>
+
+    <div id="pixelPitch"></div>
 
     <script>
-        let currentIndex = 100;
+        function toggleInputVisibility() {
+            const inputContainer = document.getElementById('inputContainer');
+            const displayButton = document.getElementById('displayButton');
+            const isHidden = inputContainer.style.visibility === 'hidden';
+            
+            inputContainer.style.visibility = isHidden ? 'visible' : 'hidden';
+            displayButton.style.visibility = isHidden ? 'visible' : 'hidden';
+        }
 
-        function changeImage(direction) {
-            currentIndex += direction;
-            var container = document.getElementById('image');
-            container.style.backgroundImage = 'url("img/rand' + currentIndex + '.png")';
+        function displayCircles() {
+            const rows = document.getElementById('rowsInput').value;
+            const columns = document.getElementById('columnsInput').value;
+            const diameter = document.getElementById('diameterInput').value;
+            const gap = document.getElementById('gapInput').value;
+            const circleContainer = document.getElementById('circleContainer');
+            
+            // 既存の円をクリア
+            circleContainer.innerHTML = '';
+
+            // grid-template-columnsとgapを更新
+            circleContainer.style.gridTemplateColumns = `repeat(${columns}, auto)`;
+            circleContainer.style.gap = `${gap}px`;
+            
+            // 入力された行と列の数だけ円を生成
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < columns; j++) {
+                    const circle = document.createElement('div');
+                    circle.className = 'circle';
+                    circle.style.width = `${diameter}px`;
+                    circle.style.height = `${diameter}px`;
+                    circleContainer.appendChild(circle);
+                }
+            }
+        }
+
+        function calculatePixelPitch() {
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+            const pixelDensity = window.devicePixelRatio;
+            const diagonalScreenResolution = Math.sqrt(screenWidth ** 2 + screenHeight ** 2);
+            const diagonalScreenSizeInches = diagonalScreenResolution / (96 * pixelDensity);
+            const pixelPitch = 1 / pixelDensity;
+
+            return pixelPitch.toFixed(2) + " px";
+        }
+
+        function displayPixelPitch() {
+            const pixelPitchElement = document.getElementById('pixelPitch');
+            pixelPitchElement.textContent = `ピクセルピッチ: ${calculatePixelPitch()}`;
+        }
+
+        window.onload = function() {
+            displayPixelPitch();
         }
     </script>
 </body>

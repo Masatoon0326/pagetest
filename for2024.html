@@ -7,13 +7,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f0f0f0;
             position: relative;
             overflow: hidden;
@@ -37,13 +32,20 @@
         }
 
         #inputContainer {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
             transition: all 0.3s ease;
-            visibility: visible;
         }
 
         .inputGroup {
@@ -75,9 +77,8 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin: 20px auto;
             transition: all 0.3s ease;
-            visibility: visible;
         }
 
         #displayButton:hover {
@@ -85,8 +86,17 @@
         }
 
         #circleContainerWrapper {
-            position: relative;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: fit-content;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            padding: 10px;
         }
 
         #circleContainer {
@@ -103,6 +113,7 @@
             position: absolute;
             font-size: 20px;
             color: red;
+            cursor: pointer;
         }
 
         .cornerNumber.top-left {
@@ -133,6 +144,17 @@
             font-size: 14px;
             color: #333;
         }
+
+        /* 非表示状態でのスタイル調整 */
+        #inputContainer.hidden {
+            visibility: hidden;
+            display: none;
+        }
+
+        #displayButton.hidden {
+            visibility: hidden;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -155,6 +177,10 @@
             <label for="gapInput">間隔 (px)</label>
             <input type="number" id="gapInput" min="0" max="100" value="20">
         </div>
+        <div class="inputGroup">
+            <label for="cornerNumberInput">四隅の数字</label>
+            <input type="number" id="cornerNumberInput" min="1" value="1">
+        </div>
     </div>
 
     <button id="displayButton" onclick="displayCircles()">表示</button>
@@ -173,10 +199,25 @@
         function toggleInputVisibility() {
             const inputContainer = document.getElementById('inputContainer');
             const displayButton = document.getElementById('displayButton');
-            const isHidden = inputContainer.style.visibility === 'hidden';
+            const circleContainerWrapper = document.getElementById('circleContainerWrapper');
+            const isHidden = inputContainer.classList.contains('hidden');
             
-            inputContainer.style.visibility = isHidden ? 'visible' : 'hidden';
-            displayButton.style.visibility = isHidden ? 'visible' : 'hidden';
+            if (isHidden) {
+                inputContainer.classList.remove('hidden');
+                displayButton.classList.remove('hidden');
+            } else {
+                inputContainer.classList.add('hidden');
+                displayButton.classList.add('hidden');
+            }
+            
+            // 円の位置を中央に保つ
+            if (isHidden) {
+                circleContainerWrapper.style.top = '50%';
+                circleContainerWrapper.style.transform = 'translate(-50%, -50%)';
+            } else {
+                circleContainerWrapper.style.top = '';
+                circleContainerWrapper.style.transform = '';
+            }
         }
 
         function displayCircles() {
@@ -184,8 +225,9 @@
             const columns = document.getElementById('columnsInput').value;
             const diameter = document.getElementById('diameterInput').value;
             const gap = document.getElementById('gapInput').value;
+            const cornerNumber = document.getElementById('cornerNumberInput').value;
             const circleContainer = document.getElementById('circleContainer');
-            
+
             // 既存の円をクリア
             circleContainer.innerHTML = '';
 
@@ -203,6 +245,18 @@
                     circleContainer.appendChild(circle);
                 }
             }
+
+            // 四隅の数字を更新
+            const cornerNumberElements = [
+                document.getElementById('topLeftNumber'),
+                document.getElementById('topRightNumber'),
+                document.getElementById('bottomLeftNumber'),
+                document.getElementById('bottomRightNumber')
+            ];
+
+            cornerNumberElements.forEach(element => {
+                element.textContent = cornerNumber;
+            });
         }
 
         function calculatePixelPitch() {
@@ -221,26 +275,33 @@
             pixelPitchElement.textContent = `ピクセルピッチ: ${calculatePixelPitch()}`;
         }
 
-        function updateCornerNumbers(delta) {
-            const topLeftNumber = document.getElementById('topLeftNumber');
-            const topRightNumber = document.getElementById('topRightNumber');
-            const bottomLeftNumber = document.getElementById('bottomLeftNumber');
-            const bottomRightNumber = document.getElementById('bottomRightNumber');
+        function updateCornerNumber(delta) {
+            const cornerNumberInput = document.getElementById('cornerNumberInput');
+            cornerNumberInput.value = parseInt(cornerNumberInput.value) + delta;
 
-            topLeftNumber.textContent = parseInt(topLeftNumber.textContent) + delta;
-            topRightNumber.textContent = parseInt(topRightNumber.textContent) + delta;
-            bottomLeftNumber.textContent = parseInt(bottomLeftNumber.textContent) + delta;
-            bottomRightNumber.textContent = parseInt(bottomRightNumber.textContent) + delta;
+            const cornerNumber = cornerNumberInput.value;
+            document.getElementById('topLeftNumber').textContent = cornerNumber;
+            document.getElementById('topRightNumber').textContent = cornerNumber;
+            document.getElementById('bottomLeftNumber').textContent = cornerNumber;
+            document.getElementById('bottomRightNumber').textContent = cornerNumber;
         }
 
         function handleClick(event) {
-            const screenHeight = window.innerHeight;
-            const yOffset = event.clientY;
+            const circleContainer = document.getElementById('circleContainerWrapper');
+            const rect = circleContainer.getBoundingClientRect();
+            const clickX = event.clientX;
+            const clickY = event.clientY;
 
-            if (yOffset < screenHeight / 2) {
-                updateCornerNumbers(1);
-            } else {
-                updateCornerNumbers(-1);
+            // 円の表示領域内でクリックされたかどうかを判定
+            if (clickX >= rect.left && clickX <= rect.right && clickY >= rect.top && clickY <= rect.bottom) {
+                const screenHeight = window.innerHeight;
+                const yOffset = event.clientY;
+
+                if (yOffset < screenHeight / 2) {
+                    updateCornerNumber(1);
+                } else {
+                    updateCornerNumber(-1);
+                }
             }
         }
 

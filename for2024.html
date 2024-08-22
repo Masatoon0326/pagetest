@@ -140,7 +140,17 @@
             position: fixed;
             bottom: 10px;
             width: 100%;
-            text-align: center;
+            right: 10px;
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+        }
+        #zoom-or {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 100%;
+            text-align: left;
             font-size: 14px;
             color: #333;
         }
@@ -154,6 +164,19 @@
         #displayButton.hidden {
             visibility: hidden;
             display: none;
+        }
+
+        .info-box {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8f8f8;
+            padding: 10px;
+            box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 16px;
+            color: #333;
         }
     </style>
 </head>
@@ -195,6 +218,9 @@
     </div>
 
     <div id="pixelPitch"></div>
+    <div id="zoom-or">
+        <span id="zoom-ratio">1</span>
+    </div>
 
     <script>
         function toggleInputVisibility() {
@@ -310,6 +336,16 @@
             displayPixelPitch();
             document.body.addEventListener('click', handleClick);
         }
+        function updateZoomLevel() {
+            const zoomRatio = window.devicePixelRatio;
+            document.getElementById('zoom-ratio').textContent = zoomRatio.toFixed(2);
+        }
+
+        // ページ読み込み時に拡大率を表示
+        updateZoomLevel();
+
+        // 拡大縮小時にも拡大率を更新
+        window.addEventListener('resize', updateZoomLevel);
     </script>
 </body>
 </html>

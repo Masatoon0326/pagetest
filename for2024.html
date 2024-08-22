@@ -16,6 +16,7 @@
             padding: 20px;
             background-color: #f0f0f0;
             position: relative;
+            overflow: hidden;
         }
 
         #toggleButton {
@@ -140,19 +141,19 @@
     <div id="inputContainer">
         <div class="inputGroup">
             <label for="rowsInput">縦の個数</label>
-            <input type="number" id="rowsInput" min="1" max="50" placeholder="例: 5">
+            <input type="number" id="rowsInput" min="1" max="50" value="5">
         </div>
         <div class="inputGroup">
             <label for="columnsInput">横の個数</label>
-            <input type="number" id="columnsInput" min="1" max="50" placeholder="例: 3">
+            <input type="number" id="columnsInput" min="1" max="50" value="3">
         </div>
         <div class="inputGroup">
             <label for="diameterInput">円の直径 (px)</label>
-            <input type="number" id="diameterInput" min="1" max="100" placeholder="例: 10">
+            <input type="number" id="diameterInput" min="1" max="100" value="10">
         </div>
         <div class="inputGroup">
             <label for="gapInput">間隔 (px)</label>
-            <input type="number" id="gapInput" min="0" max="100" placeholder="例: 20">
+            <input type="number" id="gapInput" min="0" max="100" value="20">
         </div>
     </div>
 
@@ -160,10 +161,10 @@
 
     <div id="circleContainerWrapper">
         <div id="circleContainer"></div>
-        <div class="cornerNumber top-left">1</div>
-        <div class="cornerNumber top-right">1</div>
-        <div class="cornerNumber bottom-left">1</div>
-        <div class="cornerNumber bottom-right">1</div>
+        <div class="cornerNumber top-left" id="topLeftNumber">1</div>
+        <div class="cornerNumber top-right" id="topRightNumber">1</div>
+        <div class="cornerNumber bottom-left" id="bottomLeftNumber">1</div>
+        <div class="cornerNumber bottom-right" id="bottomRightNumber">1</div>
     </div>
 
     <div id="pixelPitch"></div>
@@ -220,8 +221,32 @@
             pixelPitchElement.textContent = `ピクセルピッチ: ${calculatePixelPitch()}`;
         }
 
+        function updateCornerNumbers(delta) {
+            const topLeftNumber = document.getElementById('topLeftNumber');
+            const topRightNumber = document.getElementById('topRightNumber');
+            const bottomLeftNumber = document.getElementById('bottomLeftNumber');
+            const bottomRightNumber = document.getElementById('bottomRightNumber');
+
+            topLeftNumber.textContent = parseInt(topLeftNumber.textContent) + delta;
+            topRightNumber.textContent = parseInt(topRightNumber.textContent) + delta;
+            bottomLeftNumber.textContent = parseInt(bottomLeftNumber.textContent) + delta;
+            bottomRightNumber.textContent = parseInt(bottomRightNumber.textContent) + delta;
+        }
+
+        function handleClick(event) {
+            const screenHeight = window.innerHeight;
+            const yOffset = event.clientY;
+
+            if (yOffset < screenHeight / 2) {
+                updateCornerNumbers(1);
+            } else {
+                updateCornerNumbers(-1);
+            }
+        }
+
         window.onload = function() {
             displayPixelPitch();
+            document.body.addEventListener('click', handleClick);
         }
     </script>
 </body>

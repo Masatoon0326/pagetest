@@ -60,7 +60,7 @@
         }
 
         input[type="number"] {
-            width: 80px;
+            width: 60px;
             padding: 8px;
             font-size: 16px;
             border: 1px solid #ccc;
@@ -69,7 +69,7 @@
         }
 
         #displayButton {
-            width: 100px;
+            width: 60px;
             padding: 10px;
             font-size: 16px;
             color: #fff;
@@ -96,7 +96,7 @@
             align-items: center;
             transition: all 0.3s ease;
             background-color: #fff;
-            padding: 10px;
+            padding: 20px;
         }
 
         #circleContainer {
@@ -158,32 +158,33 @@
     </style>
 </head>
 <body>
-    <button id="toggleButton" onclick="toggleInputVisibility()">設定切り替え</button>
+    <button id="toggleButton" onclick="toggleInputVisibility()">SETTING</button>
 
     <div id="inputContainer">
+        <button id="displayButton" onclick="displayCircles()">RUN</button>
         <div class="inputGroup">
-            <label for="rowsInput">縦の個数</label>
-            <input type="number" id="rowsInput" min="1" max="50" value="5">
+            <label for="rowsInput">ROW</label>
+            <input type="number" id="rowsInput" min="1" max="50" value="13">
         </div>
         <div class="inputGroup">
-            <label for="columnsInput">横の個数</label>
-            <input type="number" id="columnsInput" min="1" max="50" value="3">
+            <label for="columnsInput">COL</label>
+            <input type="number" id="columnsInput" min="1" max="50" value="7">
         </div>
         <div class="inputGroup">
-            <label for="diameterInput">円の直径 (px)</label>
-            <input type="number" id="diameterInput" min="1" max="100" value="10">
+            <label for="diameterInput">DIA (px)</label>
+            <input type="number" id="diameterInput" min="1" max="100" value="5">
         </div>
         <div class="inputGroup">
-            <label for="gapInput">間隔 (px)</label>
+            <label for="gapInput">SPAN (px)</label>
             <input type="number" id="gapInput" min="0" max="100" value="20">
         </div>
         <div class="inputGroup">
-            <label for="cornerNumberInput">四隅の数字</label>
-            <input type="number" id="cornerNumberInput" min="1" value="1">
+            <label for="cornerNumberInput">NUM</label>
+            <input type="number" id="cornerNumberInput" min="100" max="999" value="101">
         </div>
     </div>
 
-    <button id="displayButton" onclick="displayCircles()">表示</button>
+    
 
     <div id="circleContainerWrapper">
         <div id="circleContainer"></div>
@@ -272,7 +273,7 @@
 
         function displayPixelPitch() {
             const pixelPitchElement = document.getElementById('pixelPitch');
-            pixelPitchElement.textContent = `ピクセルピッチ: ${calculatePixelPitch()}`;
+            pixelPitchElement.textContent = `PixelPitch: ${calculatePixelPitch()}`;
         }
 
         function updateCornerNumber(delta) {

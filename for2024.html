@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>円の表示プログラム</title>
     <style>
         body {
@@ -96,7 +96,7 @@
             align-items: center;
             transition: all 0.3s ease;
             background-color: #fff;
-            padding: 20px;
+            padding: 50px;
         }
 
         #circleContainer {
@@ -284,22 +284,31 @@
             cornerNumberElements.forEach(element => {
                 element.textContent = cornerNumber;
             });
+
+            const pixelPitchCont = document.getElementById('pixelPitch');
+            pixelPitchCont.innerHTML = '';
+            displayPixelPitch();
         }
 
         function calculatePixelPitch() {
-            const screenWidth = window.screen.width;
-            const screenHeight = window.screen.height;
+            const dia = document.getElementById('diameterInput').value;
             const pixelDensity = window.devicePixelRatio;
-            const diagonalScreenResolution = Math.sqrt(screenWidth ** 2 + screenHeight ** 2);
-            const diagonalScreenSizeInches = diagonalScreenResolution / (96 * pixelDensity);
-            const pixelPitch = 1 / pixelDensity;
-
-            return pixelPitch.toFixed(2) + " px";
+            const DotperPx = 1 / pixelDensity;
+            const diamm = (dia) * DotperPx / 3.779;
+            return diamm.toFixed(2) + " mm";
+        }
+        function calculateGap() {
+            const dia = parseFloat(document.getElementById('diameterInput').value);
+            const eddgeGap = parseFloat(document.getElementById('gapInput').value);
+            const pixelDensity = window.devicePixelRatio;
+            const DotperPx = 1 / pixelDensity;
+            const centerGap = (eddgeGap + dia) * DotperPx / 3.779;
+            return centerGap + " mm";
         }
 
         function displayPixelPitch() {
             const pixelPitchElement = document.getElementById('pixelPitch');
-            pixelPitchElement.textContent = `PixelPitch: ${calculatePixelPitch()}`;
+            pixelPitchElement.textContent = `Dia: ${calculatePixelPitch()} , Span = ${calculateGap()} `;
         }
 
         function updateCornerNumber(delta) {

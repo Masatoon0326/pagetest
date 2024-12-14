@@ -1,27 +1,161 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>テキスト表示</title>
-  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Edge Detection with Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #000;
+        }
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #switchButton, #refButton {
+            position: absolute;
+            top: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        #switchButton {
+            left: 10px;
+        }
+        #refButton {
+            left: 120px;
+            background-color: rgba(28, 255, 59, 0.8);
+        }
+    </style>
 </head>
-<body id="index">
-  
-  <!-- header始まり -->
-  <header>
-    <div id="insertText"></div>
+<body>
+    <button id="switchButton">Switch Camera</button>
+    <button id="refButton">Get Reference</button>
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
     <script>
-    fetch( "test.txt" ).then( res => res.text() ).then( text => {
-    document.getElementById( "insertText" ).textContent = text;
-    } );
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const switchButton = document.getElementById('switchButton');
+        const refButton = document.getElementById('refButton');
+        const ctx = canvas.getContext('2d');
+
+        let currentStream = null;
+        let usingEnvironmentCamera = true;
+        let showEdgeDetection = true;
+        let referenceImage = null; // リファレンス画像データ
+
+        async function startCamera(facingMode = 'environment') {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode },
+                });
+                currentStream = stream;
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('カメラアクセスエラー:', err);
+            }
+        }
+
+        function edgeDetection() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            if (!referenceImage) {
+                return; // リファレンスが設定されていない場合は処理をスキップ
+            }
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const edgeData = new Uint8ClampedArray(data.length);
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4;
+
+                    // リファレンスとの差を計算
+                    const diffR = Math.abs(data[i] - referenceImage[i]);
+                    const diffG = Math.abs(data[i + 1] - referenceImage[i + 1]);
+                    const diffB = Math.abs(data[i + 2] - referenceImage[i + 2]);
+
+                    // 差を画像として描画
+                    edgeData[i] = diffR;
+                    edgeData[i + 1] = diffG;
+                    edgeData[i + 2] = diffB;
+                    edgeData[i + 3] = 255; // アルファ値は固定
+                }
+            }
+
+            ctx.putImageData(new ImageData(edgeData, width, height), 0, 0);
+        }
+
+        // リファレンス画像を取得
+        refButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+            alert('Reference image captured!');
+        });
+
+        video.addEventListener('play', () => {
+            function processFrame() {
+                if (!video.paused && !video.ended) {
+                    if (showEdgeDetection) {
+                        edgeDetection();
+                    } else {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    }
+                    requestAnimationFrame(processFrame);
+                }
+            }
+            processFrame();
+        });
+
+        // カメラ切り替え
+        switchButton.addEventListener('click', () => {
+            usingEnvironmentCamera = !usingEnvironmentCamera;
+            const facingMode = usingEnvironmentCamera ? 'environment' : 'user';
+            startCamera(facingMode);
+        });
+
+        // タップで表示を切り替える
+        canvas.addEventListener('touchstart', () => {
+            showEdgeDetection = !showEdgeDetection;
+        });
+
+        // 初期カメラを開始
+        startCamera();
     </script>
-  <!-- wrap終わり -->
-  
-  <!-- footer始まり -->
-  <footer>
-    <small></small>
-  </footer>
-  <!-- footer終わり -->
-  
 </body>
 </html>

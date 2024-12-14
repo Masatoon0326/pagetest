@@ -30,7 +30,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: rgba(200, 255, 200, 0.8);
+            background-color: rgba(255, 200, 200, 0.8);
             border: none;
             padding: 10px;
             border-radius: 5px;
@@ -76,14 +76,13 @@
 
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-
             // リファレンス画像がない場合は何もせず終了
             if (!referenceImage) {
                 ctx.putImageData(imageData, 0, 0);
                 return;
             }
-
+            
+            const data = imageData.data;
             const width = canvas.width;
             const height = canvas.height;
             const edgeData = new Uint8ClampedArray(data.length);
@@ -133,7 +132,6 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
-            alert('Reference image captured!');
         });
 
         // 初期カメラを開始

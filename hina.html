@@ -2,22 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Edge Detection with Camera Switch</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
+            overflow: hidden; /* スクロールを無効化 */
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
             background-color: #000;
         }
         video, canvas {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 画面全体を埋める */
         }
         #switchButton {
             position: absolute;
@@ -29,6 +36,7 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
+            z-index: 10; /* ボタンが映像より前面に表示されるように */
         }
     </style>
 </head>
@@ -48,12 +56,12 @@
         let showEdgeDetection = true;
 
         async function startCamera(facingMode = 'environment') {
-            // Stop the current stream if it exists
+            // 現在のカメラストリームを停止
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
             }
 
-            // Start a new stream
+            // 新しいカメラストリームを開始
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode },
@@ -61,7 +69,7 @@
                 currentStream = stream;
                 video.srcObject = stream;
             } catch (err) {
-                console.error('Error accessing the camera:', err);
+                console.error('カメラアクセスエラー:', err);
             }
         }
 
@@ -124,19 +132,19 @@
             processFrame();
         });
 
-        // Handle camera switch
+        // カメラ切り替え
         switchButton.addEventListener('click', () => {
             usingEnvironmentCamera = !usingEnvironmentCamera;
             const facingMode = usingEnvironmentCamera ? 'environment' : 'user';
             startCamera(facingMode);
         });
 
-        // Handle canvas tap to toggle view
-        canvas.addEventListener('click', () => {
+        // タップで表示を切り替える
+        canvas.addEventListener('touchstart', () => {
             showEdgeDetection = !showEdgeDetection;
         });
 
-        // Start the initial camera
+        // 初期カメラを開始
         startCamera();
     </script>
 </body>

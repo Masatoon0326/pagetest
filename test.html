@@ -81,7 +81,7 @@
             const data = imageData.data;
 
             if (!referenceImage) {
-                return; // リファレンスが設定されていない場合は処理をスキップ
+                ctx.putImageData(new ImageData(data, width, height), 0, 0);
             }
 
             const width = canvas.width;
@@ -126,7 +126,7 @@
         });
 
         // タップで表示を切り替える
-        canvas.addEventListener('touchstart', () => () => {
+        canvas.addEventListener('touchstart',() => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 

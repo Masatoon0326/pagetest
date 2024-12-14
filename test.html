@@ -41,7 +41,7 @@
             left: 10px;
         }
         #refButton {
-            left: 120px;
+            left: 160px;
             background-color: rgba(28, 255, 59, 0.8);
         }
     </style>
@@ -100,9 +100,9 @@
                     const i = (y * width + x) * 4;
 
                     // リファレンスとの差を計算
-                    const diffR = Math.abs(data[i] - referenceImage[i]);
-                    const diffG = Math.abs(data[i + 1] - referenceImage[i + 1]);
-                    const diffB = Math.abs(data[i + 2] - referenceImage[i + 2]);
+                    const diffR = Math.abs(data[i] - referenceImage[i] + 128);
+                    const diffG = Math.abs(data[i + 1] - referenceImage[i + 1] + 128);
+                    const diffB = Math.abs(data[i + 2] - referenceImage[i + 2] + 128);
 
                     // 差を画像として描画
                     edgeData[i] = diffR;
@@ -123,7 +123,6 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
-            alert('Reference image captured!');
         });
 
         video.addEventListener('play', () => {

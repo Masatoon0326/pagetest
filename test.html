@@ -72,7 +72,7 @@
     <button id="switchButton"><i class="fas fa-camera"></i></button>
     <div id="sliderContainer">
         <input type="range" id="slider" min="0.01" max="2" step="0.01" value="1">
-        <div id="sliderValue">Multiplier: 5</div>
+        <div id="sliderValue">Multiplier: 1.00</div>
     </div>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
@@ -174,7 +174,7 @@
         // スライダーの値を変更
         slider.addEventListener('input', () => {
             multiplier = parseFloat(slider.value); // 倍率を小数として取得
-            sliderValue.textContent = `Multiplier: ${multiplier.toFixed(1)}`; // 表示を更新
+            sliderValue.textContent = `Multiplier: ${multiplier.toFixed(2)}`; // 表示を更新
         });
 
         // 初期カメラを開始

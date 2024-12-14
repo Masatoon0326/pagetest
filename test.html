@@ -99,9 +99,9 @@
                     const i = (y * width + x) * 4;
 
                     // リファレンスとの差を計算
-                    const diffR = Math.abs((data[i + 0] - referenceImage[i + 0]) * 10 + 128);
-                    const diffG = Math.abs((data[i + 1] - referenceImage[i + 1]) * 10 + 128);
-                    const diffB = Math.abs((data[i + 2] - referenceImage[i + 1]) * 10 + 128);
+                    const diffR = Math.abs((data[i + 0] - referenceImage[i + 0]) * 5 + 128);
+                    const diffG = Math.abs((data[i + 1] - referenceImage[i + 1]) * 5 + 128);
+                    const diffB = Math.abs((data[i + 2] - referenceImage[i + 1]) * 5 + 128);
 
                     // 差を画像として描画
                     edgeData[i] = diffR;
@@ -126,6 +126,7 @@
 
         // カメラ切り替え
         switchButton.addEventListener('click', () => {
+            referenceImage = null;
             usingEnvironmentCamera = !usingEnvironmentCamera;
             const facingMode = usingEnvironmentCamera ? 'environment' : 'user';
             startCamera(facingMode);

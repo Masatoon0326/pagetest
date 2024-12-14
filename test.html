@@ -16,6 +16,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
             height: 100vh;
             background-color: #000;
         }
@@ -45,10 +46,34 @@
         #switchButton i {
             color: #333;
         }
+        #sliderContainer {
+            position: absolute;
+            bottom: 10px;
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #slider {
+            width: 100%;
+        }
+        #sliderValue {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <button id="switchButton"><i class="fas fa-camera"></i></button>
+    <div id="sliderContainer">
+        <input type="range" id="slider" min="1" max="10" step="1" value="5">
+        <div id="sliderValue">Multiplier: 5</div>
+    </div>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
 
@@ -56,11 +81,14 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const switchButton = document.getElementById('switchButton');
+        const slider = document.getElementById('slider');
+        const sliderValue = document.getElementById('sliderValue');
         const ctx = canvas.getContext('2d');
 
         let currentStream = null;
         let usingEnvironmentCamera = true;
         let referenceImage = null; // リファレンス画像データ
+        let multiplier = 5; // 初期値
 
         async function startCamera(facingMode = 'environment') {
             if (currentStream) {
@@ -99,9 +127,9 @@
                     const i = (y * width + x) * 4;
 
                     // リファレンスとの差を計算
-                    const diffR = Math.abs((data[i + 0] - referenceImage[i + 0]) * 5 + 128);
-                    const diffG = Math.abs((data[i + 1] - referenceImage[i + 1]) * 5 + 128);
-                    const diffB = Math.abs((data[i + 2] - referenceImage[i + 1]) * 5 + 128);
+                    const diffR = Math.abs((data[i] - referenceImage[i]) * multiplier + 128);
+                    const diffG = Math.abs((data[i + 1] - referenceImage[i + 1]) * multiplier + 128);
+                    const diffB = Math.abs((data[i + 2] - referenceImage[i + 2]) * multiplier + 128);
 
                     // 差を画像として描画
                     edgeData[i] = diffR;
@@ -142,6 +170,12 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+        });
+
+        // スライダーの値を変更
+        slider.addEventListener('input', () => {
+            multiplier = parseInt(slider.value, 10); // 倍率を更新
+            sliderValue.textContent = `Multiplier: ${multiplier}`; // 表示を更新
         });
 
         // 初期カメラを開始

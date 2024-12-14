@@ -40,15 +40,10 @@
         #switchButton {
             left: 10px;
         }
-        #refButton {
-            left: 160px;
-            background-color: rgba(28, 255, 59, 0.8);
-        }
     </style>
 </head>
 <body>
     <button id="switchButton">Switch Camera</button>
-    <button id="refButton">Get Reference</button>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
 
@@ -56,12 +51,10 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const switchButton = document.getElementById('switchButton');
-        const refButton = document.getElementById('refButton');
         const ctx = canvas.getContext('2d');
 
         let currentStream = null;
         let usingEnvironmentCamera = true;
-        let showEdgeDetection = true;
         let referenceImage = null; // リファレンス画像データ
 
         async function startCamera(facingMode = 'environment') {
@@ -115,26 +108,10 @@
             ctx.putImageData(new ImageData(edgeData, width, height), 0, 0);
         }
 
-        // リファレンス画像を取得
-        refButton.addEventListener('click', () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
-        });
-
         video.addEventListener('play', () => {
             function processFrame() {
                 if (!video.paused && !video.ended) {
-                    if (showEdgeDetection) {
-                        edgeDetection();
-                    } else {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    }
+                    edgeDetection();
                     requestAnimationFrame(processFrame);
                 }
             }
@@ -149,8 +126,13 @@
         });
 
         // タップで表示を切り替える
-        canvas.addEventListener('touchstart', () => {
-            showEdgeDetection = !showEdgeDetection;
+        canvas.addEventListener('touchstart', () => () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
         });
 
         // 初期カメラを開始

@@ -175,8 +175,8 @@
 
         // スライダーの値を変更
         slider.addEventListener('input', () => {
-            multiplier = parseInt(slider.value, 10); // 倍率を更新
-            sliderValue.textContent = `Multiplier: ${multiplier}`; // 表示を更新
+            multiplier = parseFloat(slider.value); // 倍率を小数として取得
+            sliderValue.textContent = `Multiplier: ${multiplier.toFixed(1)}`; // 表示を更新
         });
 
         // 初期カメラを開始

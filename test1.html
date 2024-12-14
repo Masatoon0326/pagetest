@@ -12,7 +12,6 @@
         }
         body {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
@@ -20,9 +19,16 @@
             background-color: #000;
         }
         video, canvas {
-            max-width: 100%;
-            max-height: 100%;
-            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 画面全体を埋める */
+            display: none; /* 初期状態では非表示 */
+        }
+        canvas {
+            display: block; /* 初期状態でエッジ検出結果を表示 */
         }
         #uploadButton {
             position: absolute;
@@ -65,6 +71,8 @@
                 const url = URL.createObjectURL(file);
                 video.src = url;
                 video.play();
+                canvas.style.display = 'block'; // エッジ検出結果を最初に表示
+                video.style.display = 'none';  // 動画は非表示
             }
         });
 
@@ -118,10 +126,6 @@
                 if (!video.paused && !video.ended) {
                     if (showEdgeDetection) {
                         edgeDetection();
-                    } else {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                     }
                     requestAnimationFrame(processFrame);
                 }
@@ -130,8 +134,15 @@
         });
 
         // タップで表示を切り替える
-        canvas.addEventListener('touchstart', () => {
+        document.body.addEventListener('touchstart', () => {
             showEdgeDetection = !showEdgeDetection;
+            if (showEdgeDetection) {
+                canvas.style.display = 'block';
+                video.style.display = 'none';
+            } else {
+                canvas.style.display = 'none';
+                video.style.display = 'block';
+            }
         });
     </script>
 </body>

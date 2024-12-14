@@ -1,27 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>テキスト表示</title>
-  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slow Motion Edge Detection</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+        video, canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
 </head>
-<body id="index">
-  
-  <!-- header始まり -->
-  <header>
-    <div id="insertText"></div>
+<body>
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
     <script>
-    fetch( "test.txt" ).then( res => res.text() ).then( text => {
-    document.getElementById( "insertText" ).textContent = text;
-    } );
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        frameRate: { ideal: 30, max: 60 }  // 低めのフレームレートを設定
+                    }
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing the camera:', err);
+            }
+        }
+
+        function edgeDetection() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const edgeData = new Uint8ClampedArray(data.length);
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const i = (y * width + x) * 4;
+
+                    const gx = (
+                        -1 * data[(y - 1) * width * 4 + (x - 1) * 4] +
+                        1 * data[(y - 1) * width * 4 + (x + 1) * 4] +
+                        -2 * data[y * width * 4 + (x - 1) * 4] +
+                        2 * data[y * width * 4 + (x + 1) * 4] +
+                        -1 * data[(y + 1) * width * 4 + (x - 1) * 4] +
+                        1 * data[(y + 1) * width * 4 + (x + 1) * 4]
+                    );
+
+                    const gy = (
+                        -1 * data[(y - 1) * width * 4 + (x - 1) * 4] +
+                        -2 * data[(y - 1) * width * 4 + x * 4] +
+                        -1 * data[(y - 1) * width * 4 + (x + 1) * 4] +
+                        1 * data[(y + 1) * width * 4 + (x - 1) * 4] +
+                        2 * data[(y + 1) * width * 4 + x * 4] +
+                        1 * data[(y + 1) * width * 4 + (x + 1) * 4]
+                    );
+
+                    const magnitude = Math.sqrt(gx * gx + gy * gy);
+                    edgeData[i] = edgeData[i + 1] = edgeData[i + 2] = magnitude > 128 ? 255 : 0;
+                    edgeData[i + 3] = 255; // Full alpha
+                }
+            }
+
+            ctx.putImageData(new ImageData(edgeData, width, height), 0, 0);
+        }
+
+        video.addEventListener('play', () => {
+            let lastFrameTime = 0;
+
+            function processFrame(currentTime) {
+                // スローモーション効果: フレームを遅延して処理
+                if (currentTime - lastFrameTime > 100) { // 100ms遅延（10fps相当）
+                    edgeDetection();
+                    lastFrameTime = currentTime;
+                }
+                if (!video.paused && !video.ended) {
+                    requestAnimationFrame(processFrame);
+                }
+            }
+
+            processFrame(0); // 初期フレームを処理
+        });
+
+        startCamera();
     </script>
-  <!-- wrap終わり -->
-  
-  <!-- footer始まり -->
-  <footer>
-    <small></small>
-  </footer>
-  <!-- footer終わり -->
-  
 </body>
 </html>

@@ -44,7 +44,7 @@
             justify-content: center;
         }
         #switchButton i {
-            color: #33f;
+            color: #333;
         }
         #sliderContainer {
             position: absolute;
@@ -128,9 +128,9 @@
                     const j = (y * width + x - 1) * 4;
 
                     // リファレンスとの差を計算
-                    const diffR = Math.abs((data[i + 0] - referenceImage[i + 0]) / (data[i + 0] - data[j + 0] + 0.5) * multiplier + 128);
-                    const diffG = Math.abs((data[i + 1] - referenceImage[i + 1]) / (data[i + 1] - data[j + 1] + 0.5) * multiplier + 128);
-                    const diffB = Math.abs((data[i + 2] - referenceImage[i + 2]) / (data[i + 2] - data[j + 2] + 0.5) * multiplier + 128);
+                    const diffR = Math.abs((data[i + 0] - referenceImage[i + 0]) / (data[i + 0] - data[j + 0]) * multiplier + 128);
+                    const diffG = Math.abs((data[i + 1] - referenceImage[i + 1]) / (data[i + 1] - data[j + 1]) * multiplier + 128);
+                    const diffB = Math.abs((data[i + 2] - referenceImage[i + 2]) / (data[i + 2] - data[j + 2]) * multiplier + 128);
 
                     // 差を画像として描画
                     BOSData[i] = diffR;

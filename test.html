@@ -30,7 +30,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: rgba(255, 200, 200, 0.8);
+            background-color: rgba(255, 255, 200, 0.8);
             border: none;
             padding: 10px;
             border-radius: 5px;
@@ -76,13 +76,13 @@
 
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            // リファレンス画像がない場合は何もせず終了
+            const data = imageData.data;
+
             if (!referenceImage) {
                 ctx.putImageData(imageData, 0, 0);
                 return;
             }
-            
-            const data = imageData.data;
+
             const width = canvas.width;
             const height = canvas.height;
             const edgeData = new Uint8ClampedArray(data.length);
@@ -125,7 +125,9 @@
         });
 
         // タップでリファレンス画像を保存
-        canvas.addEventListener('touchstart', () => {
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // デフォルトのタップ動作を防止
+
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 

@@ -2,51 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slow Motion Edge Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Edge Detection on Uploaded Video</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
+            overflow: hidden; /* スクロールを無効化 */
             background-color: #000;
         }
         video, canvas {
             max-width: 100%;
             max-height: 100%;
+            display: block;
+        }
+        #uploadButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10; /* ボタンが映像より前面に表示されるように */
         }
     </style>
 </head>
 <body>
-    <video id="video" autoplay playsinline muted></video>
+    <button id="uploadButton">Upload Video</button>
+    <input type="file" id="videoInput" accept="video/*" style="display:none;">
+    <video id="video" autoplay playsinline loop muted></video>
     <canvas id="canvas"></canvas>
 
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
+        const uploadButton = document.getElementById('uploadButton');
+        const videoInput = document.getElementById('videoInput');
         const ctx = canvas.getContext('2d');
 
-        async function startCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'environment',
-                        frameRate: { ideal: 30, max: 60 }  // 低めのフレームレートを設定
-                    }
-                });
-                video.srcObject = stream;
-            } catch (err) {
-                console.error('Error accessing the camera:', err);
+        let showEdgeDetection = true;
+
+        // 動画のアップロードボタンのクリックイベント
+        uploadButton.addEventListener('click', () => {
+            videoInput.click();
+        });
+
+        // 動画ファイル選択時の処理
+        videoInput.addEventListener('change', () => {
+            const file = videoInput.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                video.src = url;
+                video.play();
             }
-        }
+        });
 
         function edgeDetection() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            
+
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
@@ -78,7 +103,9 @@
                     );
 
                     const magnitude = Math.sqrt(gx * gx + gy * gy);
-                    edgeData[i] = edgeData[i + 1] = edgeData[i + 2] = magnitude > 128 ? 255 : 0;
+                    const isEdge = magnitude > 128;
+
+                    edgeData[i] = edgeData[i + 1] = edgeData[i + 2] = isEdge ? 255 : 0;
                     edgeData[i + 3] = 255; // Full alpha
                 }
             }
@@ -87,23 +114,25 @@
         }
 
         video.addEventListener('play', () => {
-            let lastFrameTime = 0;
-
-            function processFrame(currentTime) {
-                // スローモーション効果: フレームを遅延して処理
-                if (currentTime - lastFrameTime > 100) { // 100ms遅延（10fps相当）
-                    edgeDetection();
-                    lastFrameTime = currentTime;
-                }
+            function processFrame() {
                 if (!video.paused && !video.ended) {
+                    if (showEdgeDetection) {
+                        edgeDetection();
+                    } else {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    }
                     requestAnimationFrame(processFrame);
                 }
             }
-
-            processFrame(0); // 初期フレームを処理
+            processFrame();
         });
 
-        startCamera();
+        // タップで表示を切り替える
+        canvas.addEventListener('touchstart', () => {
+            showEdgeDetection = !showEdgeDetection;
+        });
     </script>
 </body>
 </html>

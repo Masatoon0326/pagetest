@@ -98,13 +98,6 @@
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode },
                 });
-            try {
-                const constraints = {
-                    video: {
-                        facingMode,
-                        frameRate: { ideal: 30 }, // 固定フレームレート
-                    },
-                };
                 currentStream = stream;
                 video.srcObject = stream;
             } catch (err) {
@@ -135,7 +128,7 @@
                     const j = (y * width + x - 1) * 4;
 
                     // リファレンスとの差を計算
-                    const diffG = (data[i + 1] - referenceImage[i + 1]) / (data[i + 1] - data[j + 1]);
+                    const diffG = (data[i + 1] - referenceImage[i + 1]) / (referenceImage[i + 1] - referenceImage[j + 1] + 0.01);
 
                     // 差を画像として描画
                     BOSData[i + 0] = Math.min(255, Math.max(0, diffG));

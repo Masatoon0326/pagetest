@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Simple BOS using WebCam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #000;
+        }
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #switchButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #switchButton i {
+            color: #339;
+        }
+        #sliderContainer {
+            position: absolute;
+            bottom: 10px;
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #slider {
+            width: 100%;
+        }
+        #sliderValue {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <button id="switchButton"><i class="fas fa-camera"></i></button>
+    <div id="sliderContainer">
+        <input type="range" id="slider" min="0.001" max="1" step="0.001" value="0.3">
+        <div id="sliderValue">Multiplier: 0.30</div>
+    </div>
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const switchButton = document.getElementById('switchButton');
+        const slider = document.getElementById('slider');
+        const sliderValue = document.getElementById('sliderValue');
+        const ctx = canvas.getContext('2d');
+
+        let currentStream = null;
+        let usingEnvironmentCamera = true;
+        let referenceImage = null; // リファレンス画像データ
+        let multiplier = 1.0; // 初期値
+
+        async function startCamera(facingMode = 'environment') {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            
+        try {
+            const constraints = {
+                video: {
+                    facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    advanced: [{ focusMode: 'manual' }] // オートフォーカス抑制
+                }
+            };
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            currentStream = stream;
+            video.srcObject = stream;
+        } catch (err) {
+            console.error('カメラアクセスエラー:', err);
+        }
+        }
+
+        function edgeDetection() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            if (!referenceImage) {
+                ctx.putImageData(imageData, 0, 0);
+                return;
+            }
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const BOSData = new Uint8ClampedArray(data.length);
+
+            for (let y = 1; y < height; y++) {
+                for (let x = 1; x < width-1; x++) {
+                    const i = (y * width + x) * 4;
+                    const j = (y * width + x - 1) * 4;
+                    const k = (y * width + x + 1) * 4;
+
+                    // リファレンスとの差を計算
+                    const diffG = ((data[i + 1] - referenceImage[i + 1]) * (referenceImage[k + 1] + referenceImage[j + 1] - 2 * referenceImage[i + 1]) * multiplier + 128);
+
+                    // 差を画像として描画
+                    BOSData[i + 0] = diffG;  //Math.min(255, Math.max(0, diffG));
+                    BOSData[i + 1] = diffG;
+                    BOSData[i + 2] = diffG;
+                    BOSData[i + 3] = 255; // アルファ値は固定
+                }
+            }
+
+            ctx.putImageData(new ImageData(BOSData, width, height), 0, 0);
+        }
+
+        video.addEventListener('play', () => {
+            function processFrame() {
+                if (!video.paused && !video.ended) {
+                    edgeDetection();
+                    requestAnimationFrame(processFrame);
+                }
+            }
+            processFrame();
+        });
+
+        // カメラ切り替え
+        switchButton.addEventListener('click', () => {
+            referenceImage = null;
+            usingEnvironmentCamera = !usingEnvironmentCamera;
+            const facingMode = usingEnvironmentCamera ? 'environment' : 'user';
+            startCamera(facingMode);
+        });
+
+        // タップでリファレンス画像を保存
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // デフォルトのタップ動作を防止
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // デフォルトのクリック動作を防止
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+        });
+        // スライダーの値を変更
+        slider.addEventListener('input', () => {
+            multiplier = parseFloat(slider.value); // 倍率を小数として取得
+            sliderValue.textContent = `Multiplier: ${multiplier.toFixed(3)}`; // 表示を更新
+        });
+
+        // 初期カメラを開始
+        startCamera();
+    </script>
+</body>
+</html>

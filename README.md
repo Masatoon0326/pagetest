@@ -8,6 +8,8 @@ Markdown is a lightweight and easy-to-use syntax for styling your writing. It in
 
 url(https://masatoon0326.github.io/pagetest/test/html/test.html)
 
+url(https://masatoon0326.github.io/pagetest/test.html)
+
 url(https://masatoon0326.github.io/pagetest/test1.html)
 
 url(https://masatoon0326.github.io/pagetest/hina.html)

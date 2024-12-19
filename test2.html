@@ -135,9 +135,11 @@
                     const i = (y * width + x) * 4;
                     const j = (y * width + x - 1) * 4;
                     const k = (y * width + x + 1) * 4;
+                    const l = (y * width + x - 2) * 4;
+                    const m = (y * width + x + 2) * 4;
 
                     // リファレンスとの差を計算
-                    const diffG = ((data[i + 1] - referenceImage[i + 1]) / (referenceImage[k + 1] - referenceImage[j + 1]) * multiplier + 128);
+                    const diffG = ((data[i + 1] - referenceImage[i + 1]) * (-referenceImage[m + 1] + 8 * referenceImage[k + 1] - 8 * referenceImage[j + 1] + referenceImage[l + 1]) * multiplier + 128);
 
                     // 差を画像として描画
                     BOSData[i + 0] = diffG;  //Math.min(255, Math.max(0, diffG));

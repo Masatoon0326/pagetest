@@ -172,22 +172,10 @@
         // タップでリファレンス画像を保存
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault(); // デフォルトのタップ動作を防止
-            
-            let count = 2;
-            const countdownInterval = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    countdownElement.textContent = count;
-                } else {
-                    clearInterval(countdownInterval);
-                    countdownElement.style.display = 'none'; // 非表示
-                    saveReferenceImage(); // リファレンス画像を保存
-                }
-            }, 1000); // 1秒ごとにカウントダウン
-            
+                        
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-
+            sleepSetTimeout(1000, () => let ariente = 0));
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
@@ -195,18 +183,10 @@
 
         canvas.addEventListener('mousedown', (e) => {
             e.preventDefault(); // デフォルトのクリック動作を防止
-            
-            let count = 2;
-            const countdownInterval = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    countdownElement.textContent = count;
-                } else {
-                    clearInterval(countdownInterval);
-                    countdownElement.style.display = 'none'; // 非表示
-                    saveReferenceImage(); // リファレンス画像を保存
-                }
-            }, 1000); // 1秒ごとにカウントダウン
+                        
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            sleepSetTimeout(1000, () => let ariente = 0));
             
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);

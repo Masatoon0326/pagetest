@@ -44,7 +44,7 @@
             justify-content: center;
         }
         #switchButton i {
-            color: #339;
+            color: #333;
         }
         #sliderContainer {
             position: absolute;
@@ -168,25 +168,21 @@
             const facingMode = usingEnvironmentCamera ? 'environment' : 'user';
             startCamera(facingMode);
         });
-        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        
         // タップでリファレンス画像を保存
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault(); // デフォルトのタップ動作を防止
                         
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            await sleep(3000);
+            
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
         });
 
         canvas.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // デフォルトのクリック動作を防止
-                        
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            await sleep(3000);            
+            e.preventDefault(); // デフォルトのクリック動作を防止        
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存

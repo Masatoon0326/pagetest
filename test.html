@@ -172,6 +172,10 @@
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
         });
 
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // デフォルトのクリック動作を防止
+            saveReferenceImage();
+        });
         // スライダーの値を変更
         slider.addEventListener('input', () => {
             multiplier = parseFloat(slider.value); // 倍率を小数として取得

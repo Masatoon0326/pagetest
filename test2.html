@@ -44,7 +44,7 @@
             justify-content: center;
         }
         #switchButton i {
-            color: #333;
+            color: #339;
         }
         #sliderContainer {
             position: absolute;
@@ -175,17 +175,20 @@
                         
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            
+            setTimeout(function() {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+            }, 1000);    
         });
 
         canvas.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // デフォルトのクリック動作を防止        
+            e.preventDefault(); // デフォルトのクリック動作を防止    
+            setTimeout(function() {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+            }, 1000);    
         });
         // スライダーの値を変更
         slider.addEventListener('input', () => {

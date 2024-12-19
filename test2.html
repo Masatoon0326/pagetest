@@ -44,7 +44,7 @@
             justify-content: center;
         }
         #switchButton i {
-            color: #336;
+            color: #339;
         }
         #sliderContainer {
             position: absolute;
@@ -66,13 +66,6 @@
             font-size: 16px;
             font-weight: bold;
         }
-        #countdown {
-            background-color: rgba(255, 255, 255, 0);
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            font-size: 20px;
-        }
     </style>
 </head>
 <body>
@@ -81,7 +74,6 @@
         <input type="range" id="slider" min="1" max="10000" step="1" value="1000.0">
         <div id="sliderValue">Multiplier: 1000.0</div>
     </div>
-    <div id="countdown" style="display: none;">2</div>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
 
@@ -178,13 +170,11 @@
             startCamera(facingMode);
         });
 
-        function startCountdown() {
-            const countdownElement = document.getElementById('countdown');
+        // タップでリファレンス画像を保存
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // デフォルトのタップ動作を防止
+            
             let count = 2;
-
-            countdownElement.textContent = count;
-            countdownElement.style.display = 'flex'; // 表示
-
             const countdownInterval = setInterval(() => {
                 count--;
                 if (count > 0) {
@@ -195,12 +185,7 @@
                     saveReferenceImage(); // リファレンス画像を保存
                 }
             }, 1000); // 1秒ごとにカウントダウン
-        }
-
-        // タップでリファレンス画像を保存
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // デフォルトのタップ動作を防止
-            startCountdown();
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 
@@ -211,7 +196,19 @@
 
         canvas.addEventListener('mousedown', (e) => {
             e.preventDefault(); // デフォルトのクリック動作を防止
-            startCountdown();
+            
+            let count = 2;
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownElement.textContent = count;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none'; // 非表示
+                    saveReferenceImage(); // リファレンス画像を保存
+                }
+            }, 1000); // 1秒ごとにカウントダウン
+            
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存

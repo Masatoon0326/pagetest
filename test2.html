@@ -170,10 +170,29 @@
             startCamera(facingMode);
         });
 
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            let count = 2;
+
+            countdownElement.textContent = count;
+            countdownElement.style.display = 'flex'; // 表示
+
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownElement.textContent = count;
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none'; // 非表示
+                    saveReferenceImage(); // リファレンス画像を保存
+                }
+            }, 1000); // 1秒ごとにカウントダウン
+        }
+
         // タップでリファレンス画像を保存
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault(); // デフォルトのタップ動作を防止
-
+            e.preventDefault();
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
 
@@ -184,6 +203,7 @@
 
         canvas.addEventListener('mousedown', (e) => {
             e.preventDefault(); // デフォルトのクリック動作を防止
+            e.preventDefault();
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存

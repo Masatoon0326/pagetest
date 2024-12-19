@@ -137,7 +137,7 @@
                     const k = (y * width + x + 1) * 4;
 
                     // リファレンスとの差を計算
-                    const diffG = ((data[i + 1] - referenceImage[i + 1]) * (referenceImage[k + 1] + referenceImage[j + 1] - 2 * referenceImage[i + 1]) * multiplier + 128);
+                    const diffG = ((data[i + 1] - referenceImage[i + 1]) / (referenceImage[k + 1] - referenceImage[j + 1]) * multiplier + 128);
 
                     // 差を画像として描画
                     BOSData[i + 0] = diffG;  //Math.min(255, Math.max(0, diffG));

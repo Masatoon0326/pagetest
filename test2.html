@@ -184,10 +184,12 @@
         // カメラ切り替え
         switchButton.addEventListener('click', async () => {
             if (cameraDevices.length > 1) {
+                referenceImage = null;
                 currentCameraIndex = (currentCameraIndex + 1) % cameraDevices.length;
                 const nextCameraId = cameraDevices[currentCameraIndex].deviceId;
                 await startCamera(nextCameraId);
             } else {
+                referenceImage = null;
                 console.log('切り替え可能なカメラは1つのみです');
             }
         });

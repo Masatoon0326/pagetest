@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Multi-Camera Switch</title>
+    <title>Simple BOS using WebCam</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -71,8 +71,8 @@
 <body>
     <button id="switchButton"><i class="fas fa-camera"></i></button>
     <div id="sliderContainer">
-        <input type="range" id="slider" min="1" max="10000" step="1" value="1000">
-        <div id="sliderValue">Multiplier: 1000</div>
+        <input type="range" id="slider" min="1" max="10000" step="1" value="1000.0">
+        <div id="sliderValue">Multiplier: 1000.0</div>
     </div>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
@@ -86,10 +86,12 @@
         const ctx = canvas.getContext('2d');
 
         let currentStream = null;
+        let usingEnvironmentCamera = true;
+        let referenceImage = null; // リファレンス画像データ
+        let multiplier = 1.0; // 初期値
+
         let cameraDevices = []; // 利用可能なカメラデバイスのリスト
         let currentCameraIndex = 0; // 現在使用中のカメラのインデックス
-        let referenceImage = null; // リファレンス画像データ
-        let multiplier = 1000; // 初期値
 
         async function startCamera(deviceId = null) {
             if (currentStream) {
@@ -117,7 +119,7 @@
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 cameraDevices = devices.filter(device => device.kind === 'videoinput');
-
+                console.log(cameraDevices);
                 if (cameraDevices.length > 0) {
                     console.log('利用可能なカメラ:', cameraDevices);
                     currentCameraIndex = 0; // 初期化
@@ -148,18 +150,25 @@
             const BOSData = new Uint8ClampedArray(data.length);
 
             for (let y = 1; y < height; y++) {
-                for (let x = 1; x < width - 1; x++) {
+                for (let x = 1; x < width-1; x++) {
                     const i = (y * width + x) * 4;
-                    const diffG = ((data[i + 1] - referenceImage[i + 1]) * multiplier / 255 + 128);
+                    const j = (y * width + x - 1) * 4;
+                    const k = (y * width + x + 1) * 4;
+                    const l = (y * width + x - 2) * 4;
+                    const m = (y * width + x + 2) * 4;
 
-                    BOSData[i] = diffG;
-                    BOSData[i + 1] = diffG;
-                    BOSData[i + 2] = diffG;
-                    BOSData[i + 3] = 255;
+                    // リファレンスとの差を計算
+                    const diffG = ((data[i + 1] - referenceImage[i + 1]) / (-referenceImage[m + 1] + 8 * referenceImage[k + 1] - 8 * referenceImage[j + 1] + referenceImage[l + 1]) * multiplier + 128);
+
+                    // 差を画像として描画
+                    BOSData[i + 0] = diffG;  //Math.min(255, Math.max(0, diffG));
+                    BOSData[i + 1] = diffG;  //Math.min(255, Math.max(0, diffG));
+                    BOSData[i + 2] = diffG;  //Math.min(255, Math.max(0, diffG));
+                    BOSData[i + 3] = 255;  //Math.min(255, Math.max(0, diffG));
                 }
             }
             ctx.putImageData(new ImageData(BOSData, width, height), 0, 0);
-        }
+    }
 
         video.addEventListener('play', () => {
             function processFrame() {
@@ -172,6 +181,7 @@
         });
 
         // カメラ切り替え
+        // カメラ切り替え
         switchButton.addEventListener('click', async () => {
             if (cameraDevices.length > 1) {
                 currentCameraIndex = (currentCameraIndex + 1) % cameraDevices.length;
@@ -181,23 +191,36 @@
                 console.log('切り替え可能なカメラは1つのみです');
             }
         });
-
-        // リファレンス画像保存
-        canvas.addEventListener('mousedown', (e) => {
-            e.preventDefault();
+        
+        // タップでリファレンス画像を保存
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // デフォルトのタップ動作を防止
+                        
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            setTimeout(function() {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            referenceImage = new Uint8ClampedArray(imageData.data);
+            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+            }, 1000);    
         });
 
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // デフォルトのクリック動作を防止    
+            setTimeout(function() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            referenceImage = new Uint8ClampedArray(imageData.data); // 現在のフレームを保存
+            }, 1000);    
+        });
         // スライダーの値を変更
         slider.addEventListener('input', () => {
-            multiplier = parseFloat(slider.value);
-            sliderValue.textContent = `Multiplier: ${multiplier}`;
+            multiplier = parseFloat(slider.value); // 倍率を小数として取得
+            sliderValue.textContent = `Multiplier: ${multiplier.toFixed(0)}`; // 表示を更新
         });
 
-        // 初期化処理
-        listCameras();
+        // 初期カメラを開始
+        startCamera();
     </script>
 </body>
 </html>

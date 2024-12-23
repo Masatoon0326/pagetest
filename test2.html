@@ -46,10 +46,34 @@
         #switchButton i {
             color: #339;
         }
+        #sliderContainer {
+            position: absolute;
+            bottom: 10px;
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #slider {
+            width: 100%;
+        }
+        #sliderValue {
+            margin-top: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <button id="switchButton"><i class="fas fa-camera"></i></button>
+    <div id="sliderContainer">
+        <input type="range" id="slider" min="1" max="10000" step="1" value="1000">
+        <div id="sliderValue">Multiplier: 1000</div>
+    </div>
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
 
@@ -57,11 +81,15 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const switchButton = document.getElementById('switchButton');
+        const slider = document.getElementById('slider');
+        const sliderValue = document.getElementById('sliderValue');
         const ctx = canvas.getContext('2d');
 
         let currentStream = null;
         let cameraDevices = []; // 利用可能なカメラデバイスのリスト
         let currentCameraIndex = 0; // 現在使用中のカメラのインデックス
+        let referenceImage = null; // リファレンス画像データ
+        let multiplier = 1000; // 初期値
 
         async function startCamera(deviceId = null) {
             if (currentStream) {
@@ -102,16 +130,70 @@
             }
         }
 
+        function edgeDetection() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            if (!referenceImage) {
+                ctx.putImageData(imageData, 0, 0);
+                return;
+            }
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const BOSData = new Uint8ClampedArray(data.length);
+
+            for (let y = 1; y < height; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const i = (y * width + x) * 4;
+                    const diffG = ((data[i + 1] - referenceImage[i + 1]) * multiplier / 255 + 128);
+
+                    BOSData[i] = diffG;
+                    BOSData[i + 1] = diffG;
+                    BOSData[i + 2] = diffG;
+                    BOSData[i + 3] = 255;
+                }
+            }
+            ctx.putImageData(new ImageData(BOSData, width, height), 0, 0);
+        }
+
+        video.addEventListener('play', () => {
+            function processFrame() {
+                if (!video.paused && !video.ended) {
+                    edgeDetection();
+                    requestAnimationFrame(processFrame);
+                }
+            }
+            processFrame();
+        });
+
         // カメラ切り替え
         switchButton.addEventListener('click', async () => {
             if (cameraDevices.length > 1) {
-                // 次のカメラに切り替え
                 currentCameraIndex = (currentCameraIndex + 1) % cameraDevices.length;
                 const nextCameraId = cameraDevices[currentCameraIndex].deviceId;
                 await startCamera(nextCameraId);
             } else {
                 console.log('切り替え可能なカメラは1つのみです');
             }
+        });
+
+        // リファレンス画像保存
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            referenceImage = new Uint8ClampedArray(imageData.data);
+        });
+
+        // スライダーの値を変更
+        slider.addEventListener('input', () => {
+            multiplier = parseFloat(slider.value);
+            sliderValue.textContent = `Multiplier: ${multiplier}`;
         });
 
         // 初期化処理

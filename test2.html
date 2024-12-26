@@ -90,48 +90,28 @@
         let referenceImage = null; // リファレンス画像データ
         let multiplier = 1.0; // 初期値
 
-        let cameraDevices = []; // 利用可能なカメラデバイスのリスト
-        let currentCameraIndex = 0; // 現在使用中のカメラのインデックス
-
-        async function startCamera(deviceId = null) {
+        async function startCamera(facingMode = 'environment') {
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
             }
 
-            try {
-                const constraints = {
-                    video: {
-                        deviceId: deviceId ? { exact: deviceId } : undefined,
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                    }
-                };
-
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                currentStream = stream;
-                video.srcObject = stream;
-            } catch (err) {
-                console.error('カメラアクセスエラー:', err);
-            }
-        }
-
-        async function listCameras() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                cameraDevices = devices.filter(device => device.kind === 'videoinput');
-                console.log(cameraDevices);
-                if (cameraDevices.length > 0) {
-                    console.log('利用可能なカメラ:', cameraDevices);
-                    currentCameraIndex = 0; // 初期化
-                    await startCamera(cameraDevices[currentCameraIndex].deviceId);
-                } else {
-                    console.error('利用可能なカメラが見つかりません');
+            
+        try {
+            const constraints = {
+                video: {
+                    facingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    advanced: [{ focusMode: 'manual' }] // オートフォーカス抑制
                 }
-            } catch (err) {
-                console.error('デバイスリスト取得エラー:', err);
-            }
+            };
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            currentStream = stream;
+            video.srcObject = stream;
+        } catch (err) {
+            console.error('カメラアクセスエラー:', err);
         }
-        listCameras();
+        }
 
         function edgeDetection() {
             canvas.width = video.videoWidth;
@@ -182,17 +162,11 @@
         });
 
         // カメラ切り替え
-        // カメラ切り替え
-        switchButton.addEventListener('click', async () => {
-            if (cameraDevices.length > 1) {
-                referenceImage = null;
-                currentCameraIndex = (currentCameraIndex + 1) % cameraDevices.length;
-                const nextCameraId = cameraDevices[currentCameraIndex].deviceId;
-                await startCamera(nextCameraId);
-            } else {
-                referenceImage = null;
-                console.log('切り替え可能なカメラは1つのみです');
-            }
+        switchButton.addEventListener('click', () => {
+            referenceImage = null;
+            usingEnvironmentCamera = !usingEnvironmentCamera;
+            const facingMode = usingEnvironmentCamera ? 'environment' : 'user';
+            startCamera(facingMode);
         });
         
         // タップでリファレンス画像を保存
